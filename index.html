@@ -24,6 +24,20 @@
         window.location.href = '/home';
       }, 600);
     });
+
+    // ✅ ลบ fade-out และรีเซ็ต fade-in ทุกครั้งที่กลับมา
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+        document.body.classList.remove('fade-out');
+
+        // รีสตาร์ท fade-in animation
+        document.querySelectorAll('.fade-in').forEach(el => {
+          el.classList.remove('fade-in');
+          void el.offsetWidth; // trigger reflow
+          el.classList.add('fade-in');
+        });
+      }
+    });
   </script>
 </body>
 </html>
