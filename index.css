@@ -1,3 +1,4 @@
+/* 🎨 พื้นหลังและฟอนต์ */
 body {
   margin: 0;
   background: #000;
@@ -8,30 +9,36 @@ body {
   justify-content: center;
   height: 100vh;
   text-align: center;
-  padding: 0 20px;
 }
 
+/* 🧱 กล่องคอนเทนต์ */
 .container {
-  max-width: 600px;
   width: 100%;
+  max-width: 500px;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
+/* 🔠 หัวเรื่อง responsive */
 h1 {
-  font-size: 2.5rem;
+  font-size: clamp(1.8rem, 5vw, 3rem);
   margin-bottom: 16px;
   letter-spacing: 1.5px;
 }
 
+/* 🌟 สีเน้น */
 .highlight {
   color: #00e5ff;
 }
 
+/* 📝 ข้อความย่อย */
 p {
-  font-size: 1rem;
+  font-size: clamp(1rem, 4vw, 1.2rem);
   color: #aaaaaa;
   margin-bottom: 16px;
 }
 
+/* 🔘 ปุ่ม */
 a {
   display: inline-block;
   text-decoration: none;
@@ -40,26 +47,11 @@ a {
   padding: 12px 24px;
   font-weight: bold;
   border-radius: 6px;
+  font-size: 1rem;
   transition: background 0.3s ease, transform 0.2s ease;
 }
 
 a:hover {
   background: #00e5ff;
   transform: scale(1.05);
-}
-
-/* 📱 Mobile Responsiveness */
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.8rem;
-  }
-
-  p {
-    font-size: 0.95rem;
-  }
-
-  a {
-    padding: 10px 20px;
-    font-size: 0.95rem;
-  }
 }
