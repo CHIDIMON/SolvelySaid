@@ -1,4 +1,3 @@
-/* 🎨 พื้นหลังและฟอนต์ */
 body {
   margin: 0;
   background: #000;
@@ -9,45 +8,43 @@ body {
   justify-content: center;
   height: 100vh;
   text-align: center;
-}
-
-/* 🧱 กล่องคอนเทนต์ */
-.container {
-  width: 100%;
-  max-width: 500px;
-  padding: 0 20px;
+  padding: 0 16px;
   box-sizing: border-box;
 }
 
-/* 🔠 หัวเรื่อง responsive */
-h1 {
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  margin-bottom: 16px;
-  letter-spacing: 1.5px;
+.container {
+  width: 100%;
+  max-width: 480px;
 }
 
-/* 🌟 สีเน้น */
+h1 {
+  font-size: clamp(1.5rem, 6vw, 2.4rem);
+  margin-bottom: 16px;
+  letter-spacing: 1.5px;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
 .highlight {
   color: #00e5ff;
 }
 
-/* 📝 ข้อความย่อย */
 p {
-  font-size: clamp(1rem, 4vw, 1.2rem);
+  font-size: clamp(0.95rem, 4vw, 1.1rem);
   color: #aaaaaa;
   margin-bottom: 16px;
+  word-break: break-word;
 }
 
-/* 🔘 ปุ่ม */
 a {
   display: inline-block;
   text-decoration: none;
   color: black;
   background: white;
-  padding: 12px 24px;
+  padding: 10px 22px;
   font-weight: bold;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
   transition: background 0.3s ease, transform 0.2s ease;
 }
 
