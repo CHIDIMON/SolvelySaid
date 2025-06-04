@@ -10,10 +10,20 @@
 </head>
 <body>
   <div class="container">
-    <h1>Welcome to<br><span class="highlight">solvelysaid.space</span></h1>
-    <p>Mission: Launching the future of AI-powered</p>
-    <p><b>Thirasak.official</b></p>
-    <a href="/home">ENTER MISSION</a>
+    <h1 class="fade-in delay-1">Welcome to<br><span class="highlight">solvelysaid.space</span></h1>
+    <p class="fade-in delay-2">Mission: Launching the future of AI-powered</p>
+    <p class="fade-in delay-3"><b>Thirasak.official</b></p>
+    <button id="enter-btn" class="fade-in delay-4">ENTER MISSION</button>
   </div>
+
+  <script>
+    const btn = document.getElementById('enter-btn');
+    btn.addEventListener('click', () => {
+      document.body.classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = '/home';
+      }, 600);
+    });
+  </script>
 </body>
 </html>
