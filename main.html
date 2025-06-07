@@ -58,7 +58,7 @@
     const timeoutId = setTimeout(() => controller.abort(), 2000); // timeout 2 วิ
 
     try {
-      const res = await fetch(url + "ping", { method: "GET", signal: controller.signal });
+      const res = await fetch(url + "/ping", { method: "GET", signal: controller.signal });
       clearTimeout(timeoutId);
       if (res.ok) {
         localStorage.setItem("workingBaseURL", url);
