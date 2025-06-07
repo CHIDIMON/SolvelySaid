@@ -47,40 +47,40 @@
   </div>
 
   <script>
-  const defaultURL = "https://app.solvelysaid.space/"; // Cloudflared
-  const fallbackURL = "https://solvelysaidbn.onrender.com"; // Render
+  const defaultURL = "https://app.solvelysaid.space/";
+const fallbackURL = "https://solvelysaidbn.onrender.com";
 
-  // อ่านจาก localStorage หรือ fallback เป็น defaultURL
-  let baseURL = localStorage.getItem("workingBaseURL") || defaultURL;
+let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
 
-  async function checkServer(url) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000); // timeout 2 วิ
+async function checkServer(url) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3000); // เพิ่ม timeout เป็น 3 วิ
 
-    try {
-      const res = await fetch(url + "/ping", { method: "GET", signal: controller.signal });
-      clearTimeout(timeoutId);
-      if (res.ok) {
-        localStorage.setItem("workingBaseURL", url);
-        baseURL = url;
-        return true;
-      }
-    } catch {
-      clearTimeout(timeoutId);
-      return false;
+  try {
+    const res = await fetch(url + "/ping", { method: "GET", signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      sessionStorage.setItem("workingBaseURL", url);
+      baseURL = url;
+      return true;
+    }
+  } catch {
+    clearTimeout(timeoutId);
+    return false;
+  }
+}
+
+(async () => {
+  const ok = await checkServer(baseURL);
+  if (!ok) {
+    const fallbackOk = await checkServer(fallbackURL);
+    if (!fallbackOk) {
+      alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ใดๆ ได้ กรุณาตรวจสอบเครือข่าย");
     }
   }
+  console.log("📡 baseURL in use:", baseURL);
+})();
 
-  (async () => {
-    const ok = await checkServer(baseURL);
-    if (!ok) {
-      const fallbackOk = await checkServer(fallbackURL);
-      if (!fallbackOk) {
-        alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ใดๆ ได้ กรุณาตรวจสอบเครือข่าย");
-      }
-    }
-    console.log("📡 baseURL in use:", baseURL);
-  })();
 </script>
 
 
