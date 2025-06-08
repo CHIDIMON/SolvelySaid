@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="main.css" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/gh/mattdiamond/Recorderjs@master/dist/recorder.js" defer></script>
-
   <script>
     if (sessionStorage.getItem("authenticated") !== "true") {
       window.location.href = "/";
@@ -70,7 +69,6 @@ async function checkServer(url) {
       alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ใดๆ ได้ กรุณาตรวจสอบเครือข่าย");
     }
   }
-  console.log("📡 baseURL in use:", baseURL);
 })();
 </script>
 
@@ -92,9 +90,10 @@ let recorder;
 let gumStream;
 let isRecording = false;
 let silenceTimeout;
-
-const silenceLimit = 5000; // 5 วินาที
-const silenceThreshold = 0.01; // RMS ต่ำกว่านี้ถือว่าเงียบ
+let maxRecordingDuration = 10000; // ⏱️ จำกัดเวลาอัดสูงสุด 10 วินาที
+let maxDurationTimeout;
+const silenceLimit = 5000;       // 🔇 ถ้าเงียบเกิน 5 วิให้หยุด
+const silenceThreshold = 0.01;
 
 recordBtn.addEventListener("click", () => {
   if (!isRecording) {
@@ -122,7 +121,7 @@ function monitorSilence(audioContext, source) {
     if (rms < silenceThreshold) {
       if (!silenceTimeout) {
         silenceTimeout = setTimeout(() => {
-          console.log("🔕 ไม่มีเสียงนานเกิน 5 วินาที → หยุดอัด");
+          console.log("🔕 ไม่มีเสียงนานเกิน 5 วิ → หยุดอัด");
           stopRecording();
         }, silenceLimit);
       }
@@ -146,7 +145,6 @@ function startRecording() {
     }
   }).then(stream => {
     gumStream = stream;
-
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const input = audioContext.createMediaStreamSource(stream);
     recorder = new Recorder(input, { numChannels: 1 });
@@ -154,7 +152,12 @@ function startRecording() {
     recorder.record();
     isRecording = true;
 
-    monitorSilence(audioContext, input); // ✅ เรียกฟังก์ชันตรวจ silence
+    monitorSilence(audioContext, input);
+
+    maxDurationTimeout = setTimeout(() => {
+      console.log("⏱️ ครบ 10 วิ → หยุดอัดและส่ง");
+      stopRecording();
+    }, maxRecordingDuration);
 
     recordStatus.textContent = "🔴 กำลังบันทึกเสียง...";
     recordBtn.classList.add("recording");
@@ -170,6 +173,7 @@ function stopRecording() {
   recorder.stop();
   gumStream.getAudioTracks()[0].stop();
   clearTimeout(silenceTimeout);
+  clearTimeout(maxDurationTimeout);
   silenceTimeout = null;
 
   recorder.exportWAV(blob => {
