@@ -7,6 +7,7 @@
   <link rel="icon" type="image/png" href="solvely.png" />
   <link rel="stylesheet" href="main.css" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/recorder-js@1.0.3/src/recorder.js"></script>
   <script>
     if (sessionStorage.getItem("authenticated") !== "true") {
       window.location.href = "/";
@@ -82,89 +83,69 @@ const recordBtn = document.getElementById("recordBtn");
 const micIcon = document.getElementById("micIcon");
 const recordStatus = document.getElementById("recordStatus");
 const audioPlayer = document.getElementById("audioPlayer");
-let mediaRecorder;
-let audioChunks = [];
+let recorder, audioStream;
 
 recordBtn.addEventListener("mousedown", startRecording);
 recordBtn.addEventListener("mouseup", stopRecording);
 recordBtn.addEventListener("mouseleave", () => {
-  if (mediaRecorder && mediaRecorder.state === "recording") stopRecording();
+  stopRecording();
 });
 
-function startRecording() {
-  navigator.mediaDevices.getUserMedia({
-    audio: {
-      noiseSuppression: true,
-      echoCancellation: true,
-      autoGainControl: true
-    }
-  })
-    .then(stream => {
-      mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus',
-        audioBitsPerSecond: 256000  // ✅ bitrate สูงขึ้น
-      });
-      audioChunks = [];
-
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-
-      mediaRecorder.onstart = () => {
-        recordStatus.textContent = "กำลังบันทึกเสียง...";
-        recordBtn.classList.add("recording");
-      };
-
-      mediaRecorder.onstop = async () => {
-        recordStatus.textContent = "";
-        recordBtn.classList.remove("recording");
-        micIcon.textContent = "mic";
-
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        audioPlayer.src = audioUrl;
-        audioPlayer.style.display = "block";
-
-        const formData = new FormData();
-        formData.append("file", audioBlob, "recorded_audio.webm");
-        formData.append("language", selectedLangCode);
-
-        try {
-          const response = await fetch(`${baseURL}/upload`, { method: "POST", body: formData });
-          const result = await response.json();
-
-          if (response.ok) {
-            document.getElementById("transcribedText").textContent = result.text || "";
-            const aiResponseDiv = document.getElementById("aiResponseContainer");
-            aiResponseDiv.textContent = result.chat_response || "";
-            aiResponseDiv.querySelectorAll("img").forEach(img => img.remove());
-
-            if (result.menu) {
-              const menuImg = document.getElementById("menuImage");
-              menuImg.src = `${baseURL}/image/${encodeURIComponent(result.menu)}`;
-              menuImg.alt = result.menu;
-              menuImg.style.display = "block";
-            } else {
-              document.getElementById("menuImage").style.display = "none";
-            }
-          } else {
-            alert(result.error || "เกิดข้อผิดพลาด");
-          }
-        } catch {
-          alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
-        }
-      };
-
-      mediaRecorder.start();
-    })
-    .catch(err => {
-      alert("ไม่สามารถเข้าถึงไมโครโฟน: " + err.message);
+async function startRecording() {
+  try {
+    audioStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        noiseSuppression: true,
+        echoCancellation: true,
+        autoGainControl: true
+      }
     });
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const input = audioContext.createMediaStreamSource(audioStream);
+    recorder = new Recorder(input, { numChannels: 1 });
+    recorder.record();
+
+    recordStatus.textContent = "กำลังบันทึกเสียง...";
+    recordBtn.classList.add("recording");
+  } catch (err) {
+    alert("ไม่สามารถเข้าถึงไมโครโฟน: " + err.message);
+  }
 }
 
-
 function stopRecording() {
-  if (mediaRecorder && mediaRecorder.state === "recording") {
-    mediaRecorder.stop();
-  }
+  if (!recorder) return;
+  recorder.stop();
+  audioStream.getTracks().forEach(track => track.stop());
+
+  recorder.exportWAV(blob => {
+    const url = URL.createObjectURL(blob);
+    audioPlayer.src = url;
+    audioPlayer.style.display = "block";
+
+    const formData = new FormData();
+    formData.append("file", blob, "voice.wav");
+    formData.append("language", selectedLangCode);
+
+    fetch(`${baseURL}/upload`, { method: "POST", body: formData })
+      .then(res => res.json())
+      .then(result => {
+        document.getElementById("transcribedText").textContent = result.text || "";
+        const aiResponseDiv = document.getElementById("aiResponseContainer");
+        aiResponseDiv.textContent = result.chat_response || "";
+        aiResponseDiv.querySelectorAll("img").forEach(img => img.remove());
+
+        if (result.menu) {
+          const menuImg = document.getElementById("menuImage");
+          menuImg.src = `${baseURL}/image/${encodeURIComponent(result.menu)}`;
+          menuImg.alt = result.menu;
+          menuImg.style.display = "block";
+        } else {
+          document.getElementById("menuImage").style.display = "none";
+        }
+      })
+      .catch(() => alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"));
+  });
 }
 
 function resetChat() {
@@ -180,11 +161,8 @@ function resetChat() {
     document.getElementById("aiResponseContainer").textContent = result.response || "";
     document.getElementById("menuImage").style.display = "none";
   })
-  .catch(() => {
-    alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
-  });
+  .catch(() => alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"));
 }
 </script>
-
 </body>
 </html>
