@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Welcome to solvelysaid.space</title>
   <link rel="icon" type="image/png" href="solvely.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="index.css" />
 </head>
 <body>
+  <!-- 🌌 Vanta background -->
+  <div id="vanta-bg"></div>
+
   <div class="container">
     <h1 class="fade-in delay-1">Welcome to<br><span class="highlight">solvelysaid.space</span></h1>
     <p class="fade-in delay-2">Mission: Launching the future of AI-powered</p>
@@ -16,7 +19,26 @@
     <button id="enter-btn" class="fade-in delay-4">ENTER MISSION</button>
   </div>
 
+  <!-- 📦 Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+
   <script>
+    VANTA.NET({
+      el: "#vanta-bg",
+      mouseControls: true,
+      touchControls: true,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      scale: 1.0,
+      scaleMobile: 1.0,
+      color: 0x00e5ff,
+      backgroundColor: 0x000000,
+      points: 12.0,
+      maxDistance: 20.0,
+      spacing: 18.0
+    });
+
     const btn = document.getElementById('enter-btn');
     btn.addEventListener('click', () => {
       document.body.classList.add('fade-out');
@@ -25,15 +47,12 @@
       }, 600);
     });
 
-    // ✅ ลบ fade-out และรีเซ็ต fade-in ทุกครั้งที่กลับมา
     window.addEventListener('pageshow', (event) => {
       if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
         document.body.classList.remove('fade-out');
-
-        // รีสตาร์ท fade-in animation
         document.querySelectorAll('.fade-in').forEach(el => {
           el.classList.remove('fade-in');
-          void el.offsetWidth; // trigger reflow
+          void el.offsetWidth;
           el.classList.add('fade-in');
         });
       }
