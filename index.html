@@ -15,6 +15,7 @@
     <h1 class="fade-in delay-1">Welcome to<br><span class="highlight">solvelysaid.space</span></h1>
     <p class="fade-in delay-2">Mission: Launching the future of AI-powered</p>
     <p class="fade-in delay-3"><b>Thirasak.official</b></p>
+    <p id="status-message" class="fade-text fade-in delay-4" style="display: none;">⏳ Checking...</p>
     <button id="enter-btn" class="fade-in delay-4">ENTER MISSION</button>
   </div>
 
@@ -38,6 +39,15 @@
     });
 
     const btn = document.getElementById('enter-btn');
+    const statusEl = document.getElementById('status-message');
+    const messages = [
+      "⏳ Checking server...",
+      "🛰 Sending login code...",
+      "🛸 Waiting for AI system...",
+      "🤖 Booting up mission...",
+      "🔍 Validating access...",
+      "🚀 Preparing launch sequence..."
+    ];
 
     async function tryLogin(password) {
       const endpoints = [
@@ -52,16 +62,29 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ password })
           });
-
           const data = await res.json();
-          if (res.ok && data.success) {
-            return true;
-          }
+          if (res.ok && data.success) return true;
         } catch (err) {
           console.warn(`⚠️ Failed to reach ${url}`);
         }
       }
       return false;
+    }
+
+    function startMessageLoop() {
+      let i = 0;
+      statusEl.style.display = "block";
+      statusEl.classList.add("show");
+
+      const interval = setInterval(() => {
+        statusEl.classList.remove("show");
+        setTimeout(() => {
+          statusEl.textContent = messages[i % messages.length];
+          statusEl.classList.add("show");
+        }, 300);
+        i++;
+        if (i === 10) clearInterval(interval); // stop after ~30s
+      }, 3000);
     }
 
     btn.addEventListener('click', async () => {
@@ -70,6 +93,7 @@
 
       btn.disabled = true;
       btn.innerText = "⏳ Checking...";
+      startMessageLoop();
 
       const success = await tryLogin(password);
       if (success) {
@@ -82,6 +106,7 @@
         alert("🚫 Incorrect password or server unavailable.");
         btn.disabled = false;
         btn.innerText = "ENTER MISSION";
+        statusEl.style.display = "none";
       }
     });
 

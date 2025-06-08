@@ -29,7 +29,6 @@ body {
   z-index: 1;
 }
 
-/* ✨ Fade-In Animation */
 .fade-in {
   opacity: 0;
   transform: translateY(20px);
@@ -48,7 +47,6 @@ body {
   }
 }
 
-/* 💻 Desktop */
 h1 {
   font-size: 3rem;
   letter-spacing: 2px;
@@ -84,7 +82,6 @@ button:hover {
   color: #00e5ff;
 }
 
-/* 📱 Mobile */
 @media (max-width: 768px) {
   h1 {
     font-size: 2rem;
@@ -105,8 +102,16 @@ button:hover {
   }
 }
 
-/* 🔄 Fade-out ก่อนเปลี่ยนหน้า */
 .fade-out {
   opacity: 0;
   transform: scale(0.95);
+}
+
+/* 🌀 Fade text effect */
+.fade-text {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.fade-text.show {
+  opacity: 1;
 }
