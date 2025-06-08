@@ -7,8 +7,6 @@
   <link rel="icon" type="image/png" href="solvely.png" />
   <link rel="stylesheet" href="main.css" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-  
-  <!-- ✅ โหลด Recorder.js จาก CDN -->
   <script src="https://cdn.jsdelivr.net/gh/mattdiamond/Recorderjs@master/dist/recorder.js" defer></script>
 
   <script>
@@ -93,6 +91,10 @@ const audioPlayer = document.getElementById("audioPlayer");
 let recorder;
 let gumStream;
 let isRecording = false;
+let silenceTimeout;
+
+const silenceLimit = 5000; // 5 วินาที
+const silenceThreshold = 0.01; // RMS ต่ำกว่านี้ถือว่าเงียบ
 
 recordBtn.addEventListener("click", () => {
   if (!isRecording) {
@@ -101,6 +103,39 @@ recordBtn.addEventListener("click", () => {
     stopRecording();
   }
 });
+
+function monitorSilence(audioContext, source) {
+  const analyser = audioContext.createAnalyser();
+  analyser.fftSize = 2048;
+  const dataArray = new Uint8Array(analyser.fftSize);
+  source.connect(analyser);
+
+  const checkSilence = () => {
+    analyser.getByteTimeDomainData(dataArray);
+    const rms = Math.sqrt(
+      dataArray.reduce((sum, val) => {
+        const norm = (val - 128) / 128;
+        return sum + norm * norm;
+      }, 0) / dataArray.length
+    );
+
+    if (rms < silenceThreshold) {
+      if (!silenceTimeout) {
+        silenceTimeout = setTimeout(() => {
+          console.log("🔕 ไม่มีเสียงนานเกิน 5 วินาที → หยุดอัด");
+          stopRecording();
+        }, silenceLimit);
+      }
+    } else {
+      clearTimeout(silenceTimeout);
+      silenceTimeout = null;
+    }
+
+    if (isRecording) requestAnimationFrame(checkSilence);
+  };
+
+  checkSilence();
+}
 
 function startRecording() {
   navigator.mediaDevices.getUserMedia({
@@ -119,6 +154,8 @@ function startRecording() {
     recorder.record();
     isRecording = true;
 
+    monitorSilence(audioContext, input); // ✅ เรียกฟังก์ชันตรวจ silence
+
     recordStatus.textContent = "🔴 กำลังบันทึกเสียง...";
     recordBtn.classList.add("recording");
     micIcon.textContent = "stop";
@@ -132,6 +169,8 @@ function stopRecording() {
 
   recorder.stop();
   gumStream.getAudioTracks()[0].stop();
+  clearTimeout(silenceTimeout);
+  silenceTimeout = null;
 
   recorder.exportWAV(blob => {
     const audioUrl = URL.createObjectURL(blob);
