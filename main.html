@@ -20,9 +20,9 @@
 <body>
   <div class="container">
     <div class="selected-language" id="selectedLanguageDisplay"></div>
-    <h1>Ordering Food Holding The Button</h1>
+    <h1>Ordering Food (Tap to Record)</h1>
     <div class="record-section">
-      <button id="recordBtn" title="กดค้างเพื่อบันทึกเสียง">
+      <button id="recordBtn" title="กดเพื่อเริ่ม/หยุดบันทึกเสียง">
         <span class="material-icons" id="micIcon">mic</span>
       </button>
       <div id="recordStatus" class="record-status"></div>
@@ -92,11 +92,14 @@ const audioPlayer = document.getElementById("audioPlayer");
 
 let recorder;
 let gumStream;
+let isRecording = false;
 
-recordBtn.addEventListener("mousedown", startRecording);
-recordBtn.addEventListener("mouseup", stopRecording);
-recordBtn.addEventListener("mouseleave", () => {
-  if (recorder) stopRecording();
+recordBtn.addEventListener("click", () => {
+  if (!isRecording) {
+    startRecording();
+  } else {
+    stopRecording();
+  }
 });
 
 function startRecording() {
@@ -114,15 +117,19 @@ function startRecording() {
     recorder = new Recorder(input, { numChannels: 1 });
 
     recorder.record();
+    isRecording = true;
 
-    recordStatus.textContent = "กำลังบันทึกเสียง...";
+    recordStatus.textContent = "🔴 กำลังบันทึกเสียง...";
     recordBtn.classList.add("recording");
+    micIcon.textContent = "stop";
   }).catch(err => {
     alert("ไม่สามารถเข้าถึงไมโครโฟน: " + err.message);
   });
 }
 
 function stopRecording() {
+  if (!recorder) return;
+
   recorder.stop();
   gumStream.getAudioTracks()[0].stop();
 
@@ -159,6 +166,7 @@ function stopRecording() {
     recordStatus.textContent = "";
     recordBtn.classList.remove("recording");
     micIcon.textContent = "mic";
+    isRecording = false;
   });
 }
 
