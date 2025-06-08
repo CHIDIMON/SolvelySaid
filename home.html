@@ -6,6 +6,11 @@
   <title>Select Language</title>
   <link rel="icon" type="image/png" href="solvely.png" />
   <link rel="stylesheet" href="home.css" />
+    <script>
+    if (sessionStorage.getItem("authenticated") !== "true") {
+      window.location.href = "/";
+    }
+  </script>
 </head>
 <body>
   <div class="language-container">
