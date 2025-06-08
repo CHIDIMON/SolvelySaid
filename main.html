@@ -7,7 +7,10 @@
   <link rel="icon" type="image/png" href="solvely.png" />
   <link rel="stylesheet" href="main.css" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/recorder-js@1.0.3/src/recorder.js"></script>
+  
+  <!-- ✅ โหลด Recorder.js จาก CDN -->
+  <script src="https://cdn.jsdelivr.net/gh/mattdiamond/Recorderjs@master/dist/recorder.js" defer></script>
+
   <script>
     if (sessionStorage.getItem("authenticated") !== "true") {
       window.location.href = "/";
@@ -74,7 +77,10 @@ async function checkServer(url) {
 </script>
 
 <script>
-const langMap = { th: { name: "Thai", flag: "https://flagcdn.com/w40/th.png" }, en: { name: "English", flag: "https://flagcdn.com/w40/gb.png" } };
+const langMap = {
+  th: { name: "Thai", flag: "https://flagcdn.com/w40/th.png" },
+  en: { name: "English", flag: "https://flagcdn.com/w40/gb.png" }
+};
 const selectedLangCode = localStorage.getItem('selectedLanguage') || 'th';
 const selectedLang = langMap[selectedLangCode] || langMap['th'];
 document.getElementById('selectedLanguageDisplay').innerHTML = `<img src="${selectedLang.flag}" alt="${selectedLang.name} Flag" /> ${selectedLang.name}`;
@@ -83,68 +89,76 @@ const recordBtn = document.getElementById("recordBtn");
 const micIcon = document.getElementById("micIcon");
 const recordStatus = document.getElementById("recordStatus");
 const audioPlayer = document.getElementById("audioPlayer");
-let recorder, audioStream;
+
+let recorder;
+let gumStream;
 
 recordBtn.addEventListener("mousedown", startRecording);
 recordBtn.addEventListener("mouseup", stopRecording);
 recordBtn.addEventListener("mouseleave", () => {
-  stopRecording();
+  if (recorder) stopRecording();
 });
 
-async function startRecording() {
-  try {
-    audioStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        noiseSuppression: true,
-        echoCancellation: true,
-        autoGainControl: true
-      }
-    });
+function startRecording() {
+  navigator.mediaDevices.getUserMedia({
+    audio: {
+      noiseSuppression: true,
+      echoCancellation: true,
+      autoGainControl: true
+    }
+  }).then(stream => {
+    gumStream = stream;
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const input = audioContext.createMediaStreamSource(audioStream);
+    const input = audioContext.createMediaStreamSource(stream);
     recorder = new Recorder(input, { numChannels: 1 });
+
     recorder.record();
 
     recordStatus.textContent = "กำลังบันทึกเสียง...";
     recordBtn.classList.add("recording");
-  } catch (err) {
+  }).catch(err => {
     alert("ไม่สามารถเข้าถึงไมโครโฟน: " + err.message);
-  }
+  });
 }
 
 function stopRecording() {
-  if (!recorder) return;
   recorder.stop();
-  audioStream.getTracks().forEach(track => track.stop());
+  gumStream.getAudioTracks()[0].stop();
 
   recorder.exportWAV(blob => {
-    const url = URL.createObjectURL(blob);
-    audioPlayer.src = url;
+    const audioUrl = URL.createObjectURL(blob);
+    audioPlayer.src = audioUrl;
     audioPlayer.style.display = "block";
 
     const formData = new FormData();
-    formData.append("file", blob, "voice.wav");
+    formData.append("file", blob, "recorded_audio.wav");
     formData.append("language", selectedLangCode);
 
-    fetch(`${baseURL}/upload`, { method: "POST", body: formData })
-      .then(res => res.json())
-      .then(result => {
-        document.getElementById("transcribedText").textContent = result.text || "";
-        const aiResponseDiv = document.getElementById("aiResponseContainer");
-        aiResponseDiv.textContent = result.chat_response || "";
-        aiResponseDiv.querySelectorAll("img").forEach(img => img.remove());
+    fetch(`${baseURL}/upload`, {
+      method: "POST",
+      body: formData
+    })
+    .then(res => res.json())
+    .then(result => {
+      document.getElementById("transcribedText").textContent = result.text || "";
+      const aiResponseDiv = document.getElementById("aiResponseContainer");
+      aiResponseDiv.textContent = result.chat_response || "";
 
-        if (result.menu) {
-          const menuImg = document.getElementById("menuImage");
-          menuImg.src = `${baseURL}/image/${encodeURIComponent(result.menu)}`;
-          menuImg.alt = result.menu;
-          menuImg.style.display = "block";
-        } else {
-          document.getElementById("menuImage").style.display = "none";
-        }
-      })
-      .catch(() => alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"));
+      if (result.menu) {
+        const menuImg = document.getElementById("menuImage");
+        menuImg.src = `${baseURL}/image/${encodeURIComponent(result.menu)}`;
+        menuImg.alt = result.menu;
+        menuImg.style.display = "block";
+      } else {
+        document.getElementById("menuImage").style.display = "none";
+      }
+    })
+    .catch(() => alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"));
+
+    recordStatus.textContent = "";
+    recordBtn.classList.remove("recording");
+    micIcon.textContent = "mic";
   });
 }
 
@@ -161,7 +175,9 @@ function resetChat() {
     document.getElementById("aiResponseContainer").textContent = result.response || "";
     document.getElementById("menuImage").style.display = "none";
   })
-  .catch(() => alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"));
+  .catch(() => {
+    alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
+  });
 }
 </script>
 </body>
