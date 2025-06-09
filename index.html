@@ -17,6 +17,7 @@
     <p class="fade-in delay-3"><b>Thirasak.official</b></p>
     <p id="status-message" class="fade-text fade-in delay-4" style="display: none;">⏳ Checking...</p>
     <button id="enter-btn" class="fade-in delay-4">ENTER MISSION</button>
+    <p id="hint-text" style="display: none;" class="fade-text delay-4">🌙 Server is waking up... please wait ~20 seconds.</p>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
@@ -40,6 +41,8 @@
 
     const btn = document.getElementById('enter-btn');
     const statusEl = document.getElementById('status-message');
+    const hintEl = document.getElementById('hint-text');
+
     const messages = [
       "⏳ Checking server...",
       "🛰 Sending login code...",
@@ -74,6 +77,7 @@
     function startMessageLoop() {
       let i = 0;
       statusEl.style.display = "block";
+      hintEl.style.display = "block";
       statusEl.classList.add("show");
 
       const interval = setInterval(() => {
@@ -107,6 +111,7 @@
         btn.disabled = false;
         btn.innerText = "ENTER MISSION";
         statusEl.style.display = "none";
+        hintEl.style.display = "none";
       }
     });
 
