@@ -77,7 +77,8 @@
     function startMessageLoop() {
       let i = 0;
       statusEl.style.display = "block";
-      hintEl.style.display = "block";
+      hintEl.style.display = "block";        // ✅ show hint
+      hintEl.classList.add("show");          // ✅ trigger fade-in
       statusEl.classList.add("show");
 
       const interval = setInterval(() => {
@@ -111,7 +112,9 @@
         btn.disabled = false;
         btn.innerText = "ENTER MISSION";
         statusEl.style.display = "none";
+        statusEl.classList.remove("show");
         hintEl.style.display = "none";
+        hintEl.classList.remove("show"); // ✅ hide hint again
       }
     });
 
