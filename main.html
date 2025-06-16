@@ -32,7 +32,7 @@
       <div id="aiResponseContainer" class="ai-response"></div>
     </div>
     <div id="menuImageContainer" style="margin-top: 20px;">
-      <h2>Menu Detech:</h2>
+      <h2>Menu Detected:</h2>
       <img id="menuImage" src="" alt="เมนูอาหาร" style="max-width: 300px; display: none; border-radius: 10px;" />
     </div>
     <button class="send-order-btn">Send Order</button>
@@ -40,7 +40,7 @@
   </div>
 
 <script>
-const defaultURL = "https://app.solvelysaid.space/";
+const defaultURL = "https://app.solvelysaid.space";
 const fallbackURL = "https://solvelysaidbn.onrender.com";
 let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
 
@@ -48,17 +48,22 @@ async function checkServer(url) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 3000);
   try {
-    const res = await fetch(url + "/ping", { method: "GET", signal: controller.signal });
+    const res = await fetch(new URL("/ping", url), {
+      method: "GET",
+      signal: controller.signal,
+    });
     clearTimeout(timeoutId);
     if (res.ok) {
       sessionStorage.setItem("workingBaseURL", url);
       baseURL = url;
+      console.log("✅ Server OK at", url);
       return true;
     }
-  } catch {
-    clearTimeout(timeoutId);
-    return false;
+  } catch (err) {
+    console.error("❌ Ping failed:", err.message);
   }
+  clearTimeout(timeoutId);
+  return false;
 }
 
 (async () => {
@@ -90,9 +95,9 @@ let recorder;
 let gumStream;
 let isRecording = false;
 let silenceTimeout;
-let maxRecordingDuration = 10000; // ⏱️ จำกัดเวลาอัดสูงสุด 10 วินาที
+let maxRecordingDuration = 10000;
 let maxDurationTimeout;
-const silenceLimit = 5000;       // 🔇 ถ้าเงียบเกิน 5 วิให้หยุด
+const silenceLimit = 5000;
 const silenceThreshold = 0.01;
 
 recordBtn.addEventListener("click", () => {
@@ -185,7 +190,7 @@ function stopRecording() {
     formData.append("file", blob, "recorded_audio.wav");
     formData.append("language", selectedLangCode);
 
-    fetch(`${baseURL}/upload`, {
+    fetch(new URL("/upload", baseURL), {
       method: "POST",
       body: formData
     })
@@ -197,7 +202,7 @@ function stopRecording() {
 
       if (result.menu) {
         const menuImg = document.getElementById("menuImage");
-        menuImg.src = `${baseURL}/image/${encodeURIComponent(result.menu)}`;
+        menuImg.src = new URL(`/image/${encodeURIComponent(result.menu)}`, baseURL);
         menuImg.alt = result.menu;
         menuImg.style.display = "block";
       } else {
@@ -214,7 +219,7 @@ function stopRecording() {
 }
 
 function resetChat() {
-  fetch(`${baseURL}/chat`, {
+  fetch(new URL("/chat", baseURL), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text: "reset" })
