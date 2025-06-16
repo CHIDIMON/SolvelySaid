@@ -7,7 +7,6 @@
   <link rel="icon" type="image/png" href="solvely.png" />
   <link rel="stylesheet" href="main.css" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/gh/mattdiamond/Recorderjs@master/dist/recorder.js" defer></script>
   <script>
     if (sessionStorage.getItem("authenticated") !== "true") {
       window.location.href = "/";
@@ -91,14 +90,15 @@ const micIcon = document.getElementById("micIcon");
 const recordStatus = document.getElementById("recordStatus");
 const audioPlayer = document.getElementById("audioPlayer");
 
-let recorder;
-let gumStream;
+let mediaRecorder;
+let audioChunks = [];
+let audioContext, analyser, sourceNode;
+let silenceTimeout, maxDurationTimeout;
 let isRecording = false;
-let silenceTimeout;
-let maxRecordingDuration = 10000;
-let maxDurationTimeout;
-const silenceLimit = 5000;
+
 const silenceThreshold = 0.01;
+const silenceLimit = 5000;
+const maxRecordingDuration = 10000;
 
 recordBtn.addEventListener("click", () => {
   if (!isRecording) {
@@ -108,25 +108,25 @@ recordBtn.addEventListener("click", () => {
   }
 });
 
-function monitorSilence(audioContext, source) {
-  const analyser = audioContext.createAnalyser();
+function monitorSilence(stream) {
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  sourceNode = audioContext.createMediaStreamSource(stream);
+  analyser = audioContext.createAnalyser();
   analyser.fftSize = 2048;
   const dataArray = new Uint8Array(analyser.fftSize);
-  source.connect(analyser);
+  sourceNode.connect(analyser);
 
   const checkSilence = () => {
     analyser.getByteTimeDomainData(dataArray);
-    const rms = Math.sqrt(
-      dataArray.reduce((sum, val) => {
-        const norm = (val - 128) / 128;
-        return sum + norm * norm;
-      }, 0) / dataArray.length
-    );
+    const rms = Math.sqrt(dataArray.reduce((sum, val) => {
+      const norm = (val - 128) / 128;
+      return sum + norm * norm;
+    }, 0) / dataArray.length);
 
     if (rms < silenceThreshold) {
       if (!silenceTimeout) {
         silenceTimeout = setTimeout(() => {
-          console.log("🔕 ไม่มีเสียงนานเกิน 5 วิ → หยุดอัด");
+          console.log("🔕 ไม่มีเสียง → หยุดอัด");
           stopRecording();
         }, silenceLimit);
       }
@@ -142,82 +142,80 @@ function monitorSilence(audioContext, source) {
 }
 
 function startRecording() {
-  navigator.mediaDevices.getUserMedia({
-    audio: {
-      noiseSuppression: true,
-      echoCancellation: true,
-      autoGainControl: true
-    }
-  }).then(stream => {
-    gumStream = stream;
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const input = audioContext.createMediaStreamSource(stream);
-    recorder = new Recorder(input, { numChannels: 1 });
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
 
-    recorder.record();
+    mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      audioPlayer.src = audioUrl;
+      audioPlayer.style.display = "block";
+
+      const formData = new FormData();
+      formData.append("file", audioBlob, "recorded_audio.webm");
+      formData.append("language", selectedLangCode);
+
+      fetch(new URL("/upload", baseURL), {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.json())
+      .then(result => {
+        document.getElementById("transcribedText").textContent = result.text || "";
+        const aiResponseDiv = document.getElementById("aiResponseContainer");
+        aiResponseDiv.textContent = result.chat_response || "";
+
+        if (result.menu) {
+          const menuImg = document.getElementById("menuImage");
+          menuImg.src = new URL(`/image/${encodeURIComponent(result.menu)}`, baseURL);
+          menuImg.alt = result.menu;
+          menuImg.style.display = "block";
+        } else {
+          document.getElementById("menuImage").style.display = "none";
+        }
+      })
+      .catch(() => alert("❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"));
+
+      recordStatus.textContent = "";
+      micIcon.textContent = "mic";
+      recordBtn.classList.remove("recording");
+      isRecording = false;
+
+      audioContext?.close();
+    };
+
+    mediaRecorder.start();
     isRecording = true;
 
-    monitorSilence(audioContext, input);
+    monitorSilence(stream);
 
     maxDurationTimeout = setTimeout(() => {
-      console.log("⏱️ ครบ 10 วิ → หยุดอัดและส่ง");
+      console.log("⏱️ ครบ 10 วิ → หยุดอัด");
       stopRecording();
     }, maxRecordingDuration);
 
     recordStatus.textContent = "🔴 กำลังบันทึกเสียง...";
-    recordBtn.classList.add("recording");
     micIcon.textContent = "stop";
+    recordBtn.classList.add("recording");
   }).catch(err => {
     alert("ไม่สามารถเข้าถึงไมโครโฟน: " + err.message);
   });
 }
 
 function stopRecording() {
-  if (!recorder) return;
-
-  recorder.stop();
-  gumStream.getAudioTracks()[0].stop();
+  if (!mediaRecorder || mediaRecorder.state !== "recording") return;
+  mediaRecorder.stop();
   clearTimeout(silenceTimeout);
   clearTimeout(maxDurationTimeout);
-  silenceTimeout = null;
-
-  recorder.exportWAV(blob => {
-    const audioUrl = URL.createObjectURL(blob);
-    audioPlayer.src = audioUrl;
-    audioPlayer.style.display = "block";
-
-    const formData = new FormData();
-    formData.append("file", blob, "recorded_audio.wav");
-    formData.append("language", selectedLangCode);
-
-    fetch(new URL("/upload", baseURL), {
-      method: "POST",
-      body: formData
-    })
-    .then(res => res.json())
-    .then(result => {
-      document.getElementById("transcribedText").textContent = result.text || "";
-      const aiResponseDiv = document.getElementById("aiResponseContainer");
-      aiResponseDiv.textContent = result.chat_response || "";
-
-      if (result.menu) {
-        const menuImg = document.getElementById("menuImage");
-        menuImg.src = new URL(`/image/${encodeURIComponent(result.menu)}`, baseURL);
-        menuImg.alt = result.menu;
-        menuImg.style.display = "block";
-      } else {
-        document.getElementById("menuImage").style.display = "none";
-      }
-    })
-    .catch(() => alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"));
-
-    recordStatus.textContent = "";
-    recordBtn.classList.remove("recording");
-    micIcon.textContent = "mic";
-    isRecording = false;
-  });
 }
+</script>
 
+<script>
 function resetChat() {
   fetch(new URL("/chat", baseURL), {
     method: "POST",
@@ -232,7 +230,7 @@ function resetChat() {
     document.getElementById("menuImage").style.display = "none";
   })
   .catch(() => {
-    alert("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
+    alert("❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
   });
 }
 </script>
