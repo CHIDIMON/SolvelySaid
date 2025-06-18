@@ -23,6 +23,14 @@
 <body>
   <div class="language-container">
     <h1>Select Language</h1>
+    
+        <input
+      type="text"
+      id="searchBox"
+      class="search-box"
+      placeholder="ค้นหาภาษา..."
+    />
+
     <div class="flags">
       <div class="flag" data-lang="en"><img src="https://flagcdn.com/w80/gb.png" alt="English"/><span>English</span></div>
       <div class="flag" data-lang="zh"><img src="https://flagcdn.com/w80/cn.png" alt="Chinese"/><span>Chinese</span></div>
@@ -135,6 +143,15 @@
       tg: "Tajik", ta: "Tamil", tt: "Tatar", te: "Telugu", th: "Thai", bo: "Tibetan", tr: "Turkish", tk: "Turkmen",
       uk: "Ukrainian", ur: "Urdu", uz: "Uzbek", vi: "Vietnamese", cy: "Welsh", yi: "Yiddish", yo: "Yoruba"
     };
+
+        // กรองธงตาม input
+    document.getElementById("searchBox").addEventListener("input", e => {
+      const filter = e.target.value.toLowerCase();
+      document.querySelectorAll(".flag").forEach(f => {
+        const name = f.querySelector("span").textContent.toLowerCase();
+        f.style.display = name.includes(filter) ? "" : "none";
+      });
+    });
 
     document.querySelectorAll('.flag').forEach(flag => {
       flag.addEventListener('click', () => {
