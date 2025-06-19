@@ -278,7 +278,7 @@ function startRecording() {
 
         if (result.menu) {
           const menuImg = document.getElementById("menuImage");
-          menuImg.src = new URL(`/image/${encodeURIComponent(result.menu)}`, baseURL);
+          menuImg.src = new URL(`/image/720p/${encodeURIComponent(result.menu)}`, baseURL);
           menuImg.alt = result.menu;
           menuImg.style.display = "block";
         } else {

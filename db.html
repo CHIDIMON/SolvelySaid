@@ -118,7 +118,7 @@
     function renderMenus(menus) {
       let html = '<table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
       menus.forEach(menu => {
-        let imgUrl = baseURL + "/image/" + encodeURIComponent(menu.name);
+        let imgUrl = baseURL + "/image/thumb/" + encodeURIComponent(menu.name);
         html += `<tr>
           <td><img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;" onerror="this.src='https://via.placeholder.com/55x55?text=No+Img';"></td>
           <td><input value="${menu.name}" id="name_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')"></td>
