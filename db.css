@@ -213,8 +213,23 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     margin-bottom: 2px;
   }
 
-  /* Adjust button in card */
+  /* Adjust buttons in last cell to be in a row, not stacked */
   td:last-child {
+    display: flex !important;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     padding-bottom: 10px;
+  }
+  td:last-child button,
+  td:last-child .save-btn,
+  td:last-child .delete-btn {
+    width: auto !important;
+    flex: 1 1 44%;
+    min-width: 110px;
+    margin: 4px 0 0 0;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
   }
 }
