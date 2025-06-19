@@ -1,0 +1,95 @@
+body {
+  background: #f8f9fb;
+  font-family: 'Prompt', Arial, sans-serif;
+}
+
+.container {
+  max-width: 600px;
+  background: #fff;
+  margin: 40px auto;
+  padding: 30px 30px 20px 30px;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(25,0,136,0.07);
+}
+
+h2, h3 {
+  text-align: center;
+  color: #190088;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+input, textarea {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 1em;
+  background: #f7f7fb;
+}
+
+button {
+  background: #190088;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  margin-top: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #4d2eee;
+}
+
+button.danger {
+  background: #e74c3c;
+  margin-left: 6px;
+}
+button.danger:hover {
+  background: #c0392b;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+th, td {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 6px 3px;
+  text-align: left;
+}
+
+th {
+  color: #444;
+  font-weight: 600;
+  background: #fafaff;
+}
+
+input[type="number"] {
+  width: 70px;
+}
+
+.refresh-btn {
+  background: #fff;
+  color: #190088;
+  border: 1.5px solid #190088;
+  border-radius: 8px;
+  padding: 5px 12px;
+  margin-left: 14px;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.refresh-btn:hover {
+  background: #190088;
+  color: #fff;
+}

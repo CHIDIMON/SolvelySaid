@@ -186,6 +186,7 @@ const langMap = {
       yo:{name:"Yoruba",flag:"https://flagcdn.com/w40/ng.png"},
       fo:{name:"Faroese",flag:"https://flagcdn.com/w40/fo.png"}
     };
+  
 const selectedLangCode = localStorage.getItem('selectedLanguage') || 'th';
 const selectedLang = langMap[selectedLangCode] || langMap['th'];
 document.getElementById('selectedLanguageDisplay').innerHTML = `<img src="${selectedLang.flag}" alt="${selectedLang.name} Flag" /> ${selectedLang.name}`;
