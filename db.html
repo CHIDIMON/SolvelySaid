@@ -23,15 +23,30 @@
   </div>
 
   <script>
-    const API = "https://api.solvelysaid.space"; // เปลี่ยน URL ตาม backend จริง
+    const defaultURL = "https://app.solvelysaid.space";
+    const fallbackURL = "https://solvelysaidbn.onrender.com";
+    let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
 
-    // โหลดเมนูทั้งหมด
+    // โหลดเมนูทั้งหมด (ใช้ fallback อัตโนมัติ)
     function loadMenus() {
-      fetch(API + "/debug/menus")
-        .then(res => res.json())
+      fetch(baseURL + "/debug/menus")
+        .then(res => {
+          if (!res.ok) throw new Error("Fetch failed");
+          return res.json();
+        })
         .then(data => {
           if (data.menus) renderMenus(data.menus);
           else document.getElementById('menuList').innerHTML = "ไม่พบเมนู";
+        })
+        .catch(err => {
+          // fallback ถ้า defaultURL ล่ม
+          if (baseURL !== fallbackURL) {
+            baseURL = fallbackURL;
+            sessionStorage.setItem("workingBaseURL", baseURL);
+            loadMenus(); // ลองใหม่
+          } else {
+            alert("ติดต่อ server ไม่ได้ กรุณาตรวจสอบ backend!");
+          }
         });
     }
 
@@ -56,7 +71,7 @@
     // เพิ่มเมนูใหม่
     document.getElementById('addMenuForm').onsubmit = function(e) {
       e.preventDefault();
-      fetch(API + "/menu/add", {
+      fetch(baseURL + "/menu/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -73,7 +88,7 @@
 
     // แก้ไขเมนู
     function editMenu(id) {
-      fetch(API + "/menu/edit", {
+      fetch(baseURL + "/menu/edit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -88,7 +103,7 @@
     // ลบเมนู
     function deleteMenu(id) {
       if (!confirm("ลบเมนูนี้จริงหรือ?")) return;
-      fetch(API + "/menu/delete", {
+      fetch(baseURL + "/menu/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: id })
