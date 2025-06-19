@@ -17,7 +17,7 @@
     <hr>
     <h3>
       รายการเมนูทั้งหมด
-      <button type="button" onclick="loadMenus()" class="refresh-btn">รีเฟรช</button>
+      <button type="button" onclick="refreshMenus()" class="refresh-btn">รีเฟรช</button>
     </h3>
     <div id="menuList"></div>
   </div>
@@ -26,45 +26,113 @@
     const defaultURL = "https://app.solvelysaid.space";
     const fallbackURL = "https://solvelysaidbn.onrender.com";
     let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
+    let editedMenus = {};
 
-    // โหลดเมนูทั้งหมด (ใช้ fallback อัตโนมัติ)
-    function loadMenus() {
+    // -- caching function --
+    function cacheMenus(menus) {
+      localStorage.setItem('menu_cache', JSON.stringify(menus));
+    }
+    function getCachedMenus() {
+      const cache = localStorage.getItem('menu_cache');
+      if (cache) {
+        try { return JSON.parse(cache); } catch (e) {}
+      }
+      return null;
+    }
+    function clearMenuCache() {
+      localStorage.removeItem('menu_cache');
+    }
+
+    // โหลดเมนูทั้งหมด (ใช้ fallback อัตโนมัติ + cache)
+    function loadMenus(requestFresh = false) {
+      if (!requestFresh) {
+        const cached = getCachedMenus();
+        if (cached && Array.isArray(cached)) {
+          renderMenus(cached);
+          return;
+        }
+      }
       fetch(baseURL + "/debug/menus")
         .then(res => {
           if (!res.ok) throw new Error("Fetch failed");
           return res.json();
         })
         .then(data => {
-          if (data.menus) renderMenus(data.menus);
-          else document.getElementById('menuList').innerHTML = "ไม่พบเมนู";
+          if (data.menus) {
+            cacheMenus(data.menus);
+            renderMenus(data.menus);
+          } else {
+            document.getElementById('menuList').innerHTML = "ไม่พบเมนู";
+          }
+          editedMenus = {};
         })
         .catch(err => {
-          // fallback ถ้า defaultURL ล่ม
           if (baseURL !== fallbackURL) {
             baseURL = fallbackURL;
             sessionStorage.setItem("workingBaseURL", baseURL);
-            loadMenus(); // ลองใหม่
+            loadMenus(true);
           } else {
             alert("ติดต่อ server ไม่ได้ กรุณาตรวจสอบ backend!");
           }
         });
     }
 
-    // แสดงรายการเมนู + ปุ่มแก้ไข/ลบ
+    function refreshMenus() {
+      clearMenuCache();
+      location.reload();
+    }
+
+    // เปลี่ยนตรงนี้
+    function saveAllEdits() {
+      const editedArray = Object.values(editedMenus);
+      if (!editedArray.length) {
+        alert('ไม่มีข้อมูลที่แก้ไข');
+        return;
+      }
+      fetch(baseURL + "/menu/edit/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ menus: editedArray })
+      })
+      .then(res => res.json())
+      .then(data => {
+        editedMenus = {};
+        clearMenuCache();
+        loadMenus(true); // โหลดตารางใหม่ ไม่รีหน้า
+        // ถ้าอยากเช็ค data.success ให้เช็คตรงนี้
+        // if (data.success) { ... }
+      })
+      .catch(() => alert("เกิดข้อผิดพลาดในการบันทึก"));
+    }
+
+    // ========== ต้องมี! ==========
+    function handleEditMenu(id) {
+      const name = document.getElementById('name_' + id).value;
+      const price = document.getElementById('price_' + id).value;
+      const description = document.getElementById('desc_' + id).value;
+      editedMenus[id] = { id, name, price, description };
+    }
+    // =============================
+
+    // แสดงรายการเมนู + ปุ่ม delete ต่อแถว + ปุ่ม save ล่างสุด
     function renderMenus(menus) {
-      let html = '<table><tr><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
+      let html = '<table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
       menus.forEach(menu => {
+        let imgUrl = baseURL + "/image/" + encodeURIComponent(menu.name);
         html += `<tr>
-          <td><input value="${menu.name}" id="name_${menu.id}"></td>
-          <td><input type="number" value="${menu.price}" id="price_${menu.id}" style="width:60px"></td>
-          <td><input value="${menu.description || ''}" id="desc_${menu.id}"></td>
+          <td><img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;" onerror="this.src='https://via.placeholder.com/55x55?text=No+Img';"></td>
+          <td><input value="${menu.name}" id="name_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')"></td>
+          <td><input type="number" value="${menu.price}" id="price_${menu.id}" style="width:80px" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')"></td>
+          <td><input value="${menu.description || ''}" id="desc_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')"></td>
           <td>
-            <button onclick="editMenu('${menu.id}')">บันทึก</button>
-            <button class="danger" onclick="deleteMenu('${menu.id}')">ลบ</button>
+            <button class="delete-btn" onclick="deleteMenu('${menu.id}')" title="ลบ">delete</button>
           </td>
         </tr>`;
       });
       html += "</table>";
+      html += `<div style="text-align:center; margin-top:28px;">
+        <button class="save-btn" onclick="saveAllEdits()">Save</button>
+      </div>`;
       document.getElementById('menuList').innerHTML = html;
     }
 
@@ -82,32 +150,23 @@
       }).then(res => res.json())
         .then(() => {
           this.reset();
-          loadMenus();
+          clearMenuCache();
+          loadMenus(true);
         });
     };
 
-    // แก้ไขเมนู
-    function editMenu(id) {
-      fetch(baseURL + "/menu/edit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: id,
-          name: document.getElementById("name_" + id).value,
-          price: document.getElementById("price_" + id).value,
-          description: document.getElementById("desc_" + id).value,
-        })
-      }).then(res => res.json()).then(loadMenus);
-    }
-
-    // ลบเมนู
+    // ลบเมนู (ใส่ confirm ก่อนลบ)
     function deleteMenu(id) {
       if (!confirm("ลบเมนูนี้จริงหรือ?")) return;
       fetch(baseURL + "/menu/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: id })
-      }).then(res => res.json()).then(loadMenus);
+      }).then(res => res.json())
+        .then(() => {
+          clearMenuCache();
+          loadMenus(true);
+        });
     }
 
     loadMenus();
