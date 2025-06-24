@@ -113,6 +113,11 @@ function renderMenus(menus) {
     let safePrice = (menu.price !== undefined && menu.price !== null) ? menu.price : "";
     let imgUrl = baseURL + "/image/thumb/" + encodeURIComponent(menu.name);
 
+    // ถ้าเกิน 18 ตัวอักษร ให้ตัดแล้วมี “อ่านต่อ”
+    let descDisplay = safeDesc.length > 18 ?
+      `<span class="field-ellipsis">${safeDesc.substring(0,18)}... <a href="#" onclick="alert('${safeDesc.replace(/'/g,"\\'")}');return false;">อ่านต่อ</a></span>`
+      : `<span class="field-ellipsis">${safeDesc}</span>`;
+
     html += `<li class="menu-card">
       <img class="menu-card-img" src="${imgUrl}" alt="img" onerror="this.style.display='none';">
       <div class="menu-card-detail">
@@ -123,8 +128,7 @@ function renderMenus(menus) {
             oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
         </div>
         <div class="menu-card-inputs">
-          <input value="${safeDesc}" id="desc_${menu.id}" placeholder="รายละเอียด"
-            oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+          ${descDisplay}
         </div>
       </div>
       <div class="menu-card-actions">
@@ -133,7 +137,7 @@ function renderMenus(menus) {
     </li>`;
   });
   html += '</ul>';
-  html += `<div style="text-align:center; margin-top:28px;">
+  html += `<div style="text-align:center; margin-top:20px;">
     <button class="save-btn" onclick="saveAllEdits()">Save</button>
   </div>`;
   document.getElementById('menuList').innerHTML = html;

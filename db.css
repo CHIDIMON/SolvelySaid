@@ -7,117 +7,126 @@ body {
 .container {
   max-width: 680px;
   background: #fff;
-  margin: 40px auto;
-  padding: 32px 32px 24px 32px;
-  border-radius: 22px;
-  box-shadow: 0 6px 36px 0 rgba(25,0,136,0.09);
+  margin: 36px auto;
+  padding: 20px 18px 14px 18px;
+  border-radius: 14px;
+  box-shadow: 0 6px 36px 0 rgba(25,0,136,0.08);
 }
 h2, h3 {
   text-align: center;
   color: #190088;
 }
-h3 {
-  margin-top: 24px;
-  margin-bottom: 16px;
-}
 form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 12px;
 }
 input, textarea {
-  border: 1.3px solid #dadada;
-  border-radius: 8px;
-  padding: 10px 12px;
+  border: 1.2px solid #dadada;
+  border-radius: 7px;
+  padding: 8px 9px;
   font-size: 1em;
   background: #f7f7fb;
 }
-input[type="number"] {
-  width: 80px;
-}
+input[type="number"] { width: 78px; }
 button {
   background: #190088;
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px 0;
-  margin-top: 5px;
+  padding: 8px 0;
+  margin-top: 4px;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.2s;
 }
 button:hover { background: #4d2eee; }
 
-/* --- Floating card block --- */
+/* --- Floating card block (แถวเดียว) --- */
 .menu-card-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 .menu-card {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
   background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 2px 16px rgba(25,0,136,0.08);
-  padding: 20px 16px;
-  gap: 18px;
-  transition: box-shadow 0.2s;
-}
-.menu-card:hover {
-  box-shadow: 0 8px 32px rgba(25,0,136,0.14);
+  border-radius: 12px;
+  box-shadow: 0 1px 8px rgba(25,0,136,0.05);
+  padding: 9px 10px;
+  gap: 10px;
+  min-height: 46px;
+  max-height: 66px;
+  font-size: 0.97em;
 }
 .menu-card-img {
-  width: 70px; height: 70px; border-radius: 12px; object-fit: cover;
+  width: 42px; height: 42px; border-radius: 8px; object-fit: cover;
   border: 1px solid #eee;
   flex-shrink: 0;
   background: #fafaff;
 }
 .menu-card-detail {
-  flex: 1 1 160px;
-  min-width: 150px;
+  flex: 1 1 120px;
+  min-width: 80px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
 }
 .menu-card-inputs input {
-  margin-right: 12px;
-  margin-bottom: 8px;
-  border: 1.2px solid #dadada;
-  border-radius: 8px;
-  padding: 7px 10px;
-  font-size: 1em;
+  margin-right: 7px;
+  border: 1px solid #dadada;
+  border-radius: 7px;
+  padding: 3px 6px;
+  font-size: 0.96em;
   background: #f7f7fb;
-  min-width: 80px;
+  min-width: 45px;
+  max-width: 90px;
+  height: 27px;
+}
+.menu-card-inputs input[type="number"] { max-width: 58px; }
+.menu-card-inputs {
+  display: flex;
+  gap: 4px 8px;
+  align-items: center;
   max-width: 120px;
 }
-.menu-card-inputs input[type="number"] { max-width: 80px; }
-.menu-card-inputs {
-  display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center;
+.menu-card-inputs input, .menu-card-inputs .field-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.menu-card-inputs .field-ellipsis {
+  max-width: 105px;
+  display: inline-block;
+  vertical-align: bottom;
+  color: #4d4d68;
+  font-size: 0.97em;
 }
 .menu-card-actions {
-  margin-left: auto; display: flex; gap: 10px;
-  align-items: flex-start; flex-direction: column;
+  margin-left: auto; display: flex; gap: 5px;
+  align-items: center; flex-direction: row;
 }
 .delete-btn, .save-btn {
-  padding: 7px 22px;
-  font-size: 0.98em;
-  border-radius: 25px;
+  padding: 4px 13px;
+  font-size: 0.97em;
+  border-radius: 14px;
   font-weight: bold;
   border: none;
-  box-shadow: 0 2px 8px rgba(231,76,60,0.06);
+  box-shadow: 0 1px 6px rgba(231,76,60,0.04);
   cursor: pointer;
   transition: background 0.18s, color 0.18s, border 0.18s;
 }
 .delete-btn {
   background: #fff;
   color: #e74c3c;
-  border: 1.4px solid #e74c3c;
+  border: 1.1px solid #e74c3c;
 }
 .delete-btn:hover {
   background: #e74c3c;
@@ -133,11 +142,11 @@ button:hover { background: #4d2eee; }
 .refresh-btn {
   background: #fff;
   color: #190088;
-  border: 1.5px solid #190088;
+  border: 1.2px solid #190088;
   border-radius: 8px;
-  padding: 5px 12px;
-  margin-left: 18px;
-  font-size: 0.95em;
+  padding: 4px 8px;
+  margin-left: 10px;
+  font-size: 0.93em;
   cursor: pointer;
   vertical-align: middle;
   transition: background 0.2s, color 0.2s;
@@ -145,9 +154,10 @@ button:hover { background: #4d2eee; }
 .refresh-btn:hover { background: #190088; color: #fff; }
 
 @media (max-width: 700px) {
-  .container { max-width: 99vw; margin: 8px auto; padding: 10px 2vw 16px 2vw; border-radius: 12px; }
-  .menu-card { flex-direction: column; align-items: stretch; gap: 14px; padding: 14px 5vw; }
-  .menu-card-img { margin: 0 auto; }
-  .menu-card-actions { flex-direction: row; justify-content: flex-end; margin: 0; gap: 10px; }
-  .menu-card-inputs { flex-direction: column; gap: 6px 0; }
+  .container { max-width: 99vw; margin: 6px auto; padding: 6px 2vw 8px 2vw; border-radius: 8px; }
+  .menu-card { flex-direction: column; align-items: stretch; gap: 7px; padding: 7px 3vw; font-size: 0.94em; min-height: 34px; max-height: none; }
+  .menu-card-img { margin: 0 auto; width: 30px; height: 30px; }
+  .menu-card-actions { flex-direction: row; justify-content: flex-end; margin: 0; gap: 6px; }
+  .menu-card-detail { flex-direction: column; gap: 2px; }
+  .menu-card-inputs input, .menu-card-inputs .field-ellipsis { max-width: 94vw; width: 100%; }
 }
