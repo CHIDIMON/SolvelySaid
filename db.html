@@ -123,7 +123,7 @@
         html += `<tr>
           <td data-label="รูป">
             <img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;" 
-              onerror="this.src='https://via.placeholder.com/55x55?text=No+Img';">
+              onerror="this.src='/img/no-img.png';">
           </td>
           <td data-label="ชื่อ">
             <input value="${menu.name}" id="name_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
