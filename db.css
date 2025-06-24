@@ -8,7 +8,7 @@ body {
   max-width: 680px;
   background: #fff;
   margin: 36px auto;
-  padding: 20px 18px 14px 18px;
+  padding: 18px 10px 12px 10px;
   border-radius: 14px;
   box-shadow: 0 6px 36px 0 rgba(25,0,136,0.08);
 }
@@ -23,19 +23,19 @@ form {
   margin-bottom: 12px;
 }
 input, textarea {
-  border: 1.2px solid #dadada;
+  border: 1.1px solid #dadada;
   border-radius: 7px;
-  padding: 8px 9px;
+  padding: 7px 8px;
   font-size: 1em;
   background: #f7f7fb;
 }
-input[type="number"] { width: 78px; }
+input[type="number"] { width: 76px; }
 button {
   background: #190088;
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 8px 0;
+  padding: 7px 0;
   margin-top: 4px;
   font-weight: bold;
   cursor: pointer;
@@ -43,11 +43,10 @@ button {
 }
 button:hover { background: #4d2eee; }
 
-/* --- Floating card block (แถวเดียว) --- */
 .menu-card-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -59,56 +58,61 @@ button:hover { background: #4d2eee; }
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 1px 8px rgba(25,0,136,0.05);
-  padding: 9px 10px;
-  gap: 10px;
-  min-height: 46px;
-  max-height: 66px;
+  padding: 7px 8px;
+  gap: 8px;
+  min-height: 38px;
   font-size: 0.97em;
 }
 .menu-card-img {
-  width: 42px; height: 42px; border-radius: 8px; object-fit: cover;
+  width: 38px; height: 38px; border-radius: 7px; object-fit: cover;
   border: 1px solid #eee;
   flex-shrink: 0;
   background: #fafaff;
 }
 .menu-card-detail {
-  flex: 1 1 120px;
+  flex: 1 1 110px;
   min-width: 80px;
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 6px;
 }
-.menu-card-inputs input {
-  margin-right: 7px;
-  border: 1px solid #dadada;
-  border-radius: 7px;
-  padding: 3px 6px;
-  font-size: 0.96em;
-  background: #f7f7fb;
-  min-width: 45px;
-  max-width: 90px;
-  height: 27px;
-}
-.menu-card-inputs input[type="number"] { max-width: 58px; }
 .menu-card-inputs {
   display: flex;
-  gap: 4px 8px;
+  flex-direction: row;
+  gap: 6px;
   align-items: center;
-  max-width: 120px;
 }
-.menu-card-inputs input, .menu-card-inputs .field-ellipsis {
+.menu-card-inputs input {
+  width: 92px;
+  max-width: 110px;
+  min-width: 40px;
+  transition: all 0.15s;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.menu-card-inputs .field-ellipsis {
-  max-width: 105px;
-  display: inline-block;
-  vertical-align: bottom;
-  color: #4d4d68;
+  border: 1px solid #dadada;
+  border-radius: 7px;
+  padding: 4px 7px;
   font-size: 0.97em;
+  background: #f7f7fb;
+  height: 28px;
 }
+.menu-card-inputs input[type="number"] { max-width: 60px; }
+
+/* ขยายเต็มเมื่อ focus */
+.menu-card-inputs input:focus {
+  max-width: 340px;
+  width: 280px;
+  background: #fffbe9;
+  overflow: auto;
+  text-overflow: unset;
+  white-space: normal;
+  z-index: 9;
+  position: relative;
+}
+
+/* Actions ปุ่ม */
 .menu-card-actions {
   margin-left: auto; display: flex; gap: 5px;
   align-items: center; flex-direction: row;
@@ -116,7 +120,7 @@ button:hover { background: #4d2eee; }
 .delete-btn, .save-btn {
   padding: 4px 13px;
   font-size: 0.97em;
-  border-radius: 14px;
+  border-radius: 13px;
   font-weight: bold;
   border: none;
   box-shadow: 0 1px 6px rgba(231,76,60,0.04);
@@ -142,9 +146,9 @@ button:hover { background: #4d2eee; }
 .refresh-btn {
   background: #fff;
   color: #190088;
-  border: 1.2px solid #190088;
+  border: 1.1px solid #190088;
   border-radius: 8px;
-  padding: 4px 8px;
+  padding: 3px 8px;
   margin-left: 10px;
   font-size: 0.93em;
   cursor: pointer;
@@ -153,11 +157,14 @@ button:hover { background: #4d2eee; }
 }
 .refresh-btn:hover { background: #190088; color: #fff; }
 
+/* Responsive (Mobile) */
 @media (max-width: 700px) {
-  .container { max-width: 99vw; margin: 6px auto; padding: 6px 2vw 8px 2vw; border-radius: 8px; }
-  .menu-card { flex-direction: column; align-items: stretch; gap: 7px; padding: 7px 3vw; font-size: 0.94em; min-height: 34px; max-height: none; }
-  .menu-card-img { margin: 0 auto; width: 30px; height: 30px; }
-  .menu-card-actions { flex-direction: row; justify-content: flex-end; margin: 0; gap: 6px; }
+  .container { max-width: 99vw; margin: 6px auto; padding: 5px 1vw 7px 1vw; border-radius: 8px; }
+  .menu-card { flex-direction: column; align-items: stretch; gap: 6px; padding: 6px 3vw; font-size: 0.94em; min-height: 26px; }
+  .menu-card-img { margin: 0 auto; width: 26px; height: 26px; }
+  .menu-card-actions { flex-direction: row; justify-content: flex-end; margin: 0; gap: 4px; }
   .menu-card-detail { flex-direction: column; gap: 2px; }
-  .menu-card-inputs input, .menu-card-inputs .field-ellipsis { max-width: 94vw; width: 100%; }
+  .menu-card-inputs { flex-direction: column; gap: 3px; }
+  .menu-card-inputs input { max-width: 98vw; width: 98vw; min-width: 45px; }
+  .menu-card-inputs input:focus { width: 99vw; max-width: 99vw; }
 }
