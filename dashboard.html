@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - รายการอาหาร</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <h1>📋 รายการอาหารลูกค้า</h1>
+    <div class="order-list" id="orderList"></div>
+  </div>
+<script>
+const BASE_URL = "https://app.solvelysaid.space";
+
+function statusText(st) {
+  if(st === "waiting") return "🟡 รอทำอาหาร";
+  if(st === "cooking") return "🔵 กำลังทำในครัว";
+  if(st === "served") return "✅ เสิร์ฟแล้ว";
+  return st || "-";
+}
+function statusClass(st) {
+  if(st === "waiting") return "status waiting";
+  if(st === "cooking") return "status cooking";
+  if(st === "served") return "status served";
+  return "status";
+}
+
+function renderOrders(orders) {
+  const list = document.getElementById('orderList');
+  list.innerHTML = "";
+  if(!orders || !orders.length) {
+    list.innerHTML = "<div style='color:#888;text-align:center;padding:30px;'>ไม่มีออเดอร์</div>";
+    return;
+  }
+  orders.forEach(order => {
+    let time = order.timestamp ? new Date(order.timestamp).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : "-";
+    let items = (order.menus || []).map((m,i) => `<li>${i+1}. ${m.name}${m.qty?` x${m.qty}`:""}</li>`).join('');
+    let canFinish = order.status !== "served";
+    list.innerHTML += `
+      <div class="order-card" data-id="${order.id}">
+        ${canFinish ? `<button class="finish-btn" onclick="finishOrder('${order.id}', this)">Click To Finish</button>` : ""}
+        <div class="order-header">
+          <span class="table-id">โต๊ะ ${order.table_number || "-"}</span>
+          <span class="order-time">⏰ ${time}</span>
+        </div>
+        ${order.summary ? `<div class="order-summary" style="margin-bottom:6px;color:#2359a2;">${order.summary}</div>` : ""}
+        <ul class="order-items">${items}</ul>
+        <div class="${statusClass(order.status)}">${statusText(order.status)}</div>
+      </div>`;
+  });
+}
+
+function fetchOrders() {
+  fetch(`${BASE_URL}/orders`)
+    .then(r => r.json())
+    .then(data => renderOrders(data.orders))
+    .catch(() => {
+      document.getElementById('orderList').innerHTML = "<div style='color:#888;text-align:center;padding:30px;'>เกิดข้อผิดพลาดเชื่อมต่อ</div>";
+    });
+}
+
+function finishOrder(orderId, btn) {
+  btn.disabled = true;
+  btn.textContent = "✔ เสร็จแล้ว";
+  fetch(`${BASE_URL}/order/status`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ order_id: orderId, status: "served" })
+  }).then(() => {
+    setTimeout(fetchOrders, 400);
+  });
+}
+
+window.finishOrder = finishOrder;
+fetchOrders();
+setInterval(fetchOrders, 12000);
+</script>
+</body>
+</html>

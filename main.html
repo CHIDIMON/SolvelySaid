@@ -43,8 +43,8 @@
       <img id="menuImage" src="" alt="เมนูอาหาร" style="max-width: 300px; display: none; border-radius: 10px;" />
     </div>
     <div class="order-section">
-      <label>โต๊ะ:</label>
-      <input type="text" id="tableInput" placeholder="A1 หรือ 1" style="width:80px;">
+      <label>Table:</label>
+      <input type="text" id="tableInput" placeholder="A1-10" style="width:45px;">
       <div id="orderSummary"></div>
     </div>
     <button class="send-order-btn" onclick="sendOrder()">Send Order</button>
@@ -241,12 +241,13 @@ function updateOrderSummary(menuName) {
 
 function sendOrder() {
   const tableNumber = document.getElementById('tableInput').value.trim();
+  const aiSummary = document.getElementById('aiResponseContainer').textContent.trim();
   if (!tableNumber) {
     alert("กรุณาระบุหมายเลขโต๊ะ");
     return;
   }
-  if (!detectedMenu) {
-    alert("ยังไม่ได้เลือกรายการอาหาร");
+  if (!aiSummary) {
+    alert("ยังไม่มีสรุปออเดอร์จาก AI");
     return;
   }
   fetch(new URL("/order", baseURL), {
@@ -254,7 +255,8 @@ function sendOrder() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       table_number: tableNumber,
-      menus: [detectedMenu]
+      menus: detectedMenu ? [detectedMenu] : [],
+      summary: aiSummary    // <--- ส่งสรุป ai response ไปด้วย
     })
   })
   .then(res => res.json())

@@ -175,65 +175,69 @@ audio {
     width: 100%;
 }
 
+
+
 .order-section {
-    background: #e8f4ff;
-    border-radius: 13px;
-    box-shadow: 0 1.5px 7px 0 #7bb3da14;
-    margin: 12px 0 8px 0;
-    padding: 8px 14px 8px 14px;
+    background: none;
+    border: none;
+    box-shadow: none;
+    margin: 12px 0 6px 0;
+    padding: 0;
     display: flex;
+    flex-direction: row; /* เปลี่ยนจาก column เป็น row */
     align-items: center;
-    gap: 10px;
-    min-height: 38px;
+    justify-content: center;
+    gap: 7px;
     width: 100%;
-    box-sizing: border-box;
-    border: 1.2px solid #cbe7fa;
+    min-height: 0;
 }
 
 .order-section label {
     font-weight: 500;
-    color: #2573ad;
-    margin-right: 2px;
-    font-size: 1em;
+    color: #181818;
+    font-size: 0.99em;
+    margin-bottom: 0;   /* เปลี่ยนจาก 2px เป็น 0 */
+    margin-right: 3px;
     letter-spacing: 0.01em;
+    text-align: left;
 }
 
 .order-section input[type="text"] {
-    border: 1.3px solid #b4daf1;
-    background: #fafdff;
-    border-radius: 7px;
-    padding: 5.5px 10px;
-    width: 68px;
-    font-size: 0.98em;
+    border: 1.2px solid #161616;
+    background: #fff;
+    border-radius: 13px;
+    padding: 5px 13px;
+    width: 72px;
+    font-size: 1em;
     font-weight: 500;
-    transition: border 0.15s, background 0.15s;
+    color: #181818;
     outline: none;
-    color: #246b91;
+    box-shadow: 0 1px 6px 0 #0001;
+    transition: border 0.16s, background 0.12s;
+    text-align: center;
 }
 .order-section input[type="text"]:focus {
-    border: 1.3px solid #60b4ef;
-    background: #f0faff;
+    border: 1.2px solid #232323;
+    background: #f8f8f8;
 }
 
 #orderSummary {
-    font-size: 0.98em;
+    font-size: 0.99em;
     font-weight: 500;
-    color: #2173a6;
-    margin-left: 6px;
-    letter-spacing: 0.01em;
+    color: #353535;
+    margin-left: 8px;
+    text-align: left;
 }
 
 @media (max-width: 600px) {
     .order-section {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: row;
         gap: 6px;
-        padding: 8px 8px 8px 8px;
     }
     .order-section input[type="text"] {
-        width: 100%;
-    }
-    #orderSummary {
-        margin-left: 0;
+        width: 65px;
+        max-width: 90px;
+        font-size: 0.98em;
+        padding: 6px 8px;
     }
 }
