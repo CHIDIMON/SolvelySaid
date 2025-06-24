@@ -15,23 +15,17 @@
       <button type="submit">เพิ่มเมนู</button>
     </form>
     <hr>
-    <h3>
-      รายการเมนูทั้งหมด
-      <button type="button" onclick="refreshMenus()" class="refresh-btn">รีเฟรช</button>
-    </h3>
-    <div id="menuList"></div>
+    <!-- ส่วนที่เพิ่ม/เปลี่ยนแปลง -->
+    <div class="menu-admin-block">
+      <h3>
+        รายการเมนูทั้งหมด
+        <button type="button" onclick="refreshMenus()" class="refresh-btn">รีเฟรช</button>
+      </h3>
+      <div id="menuList"></div>
+    </div>
+    <!-- จบส่วนที่เพิ่ม/เปลี่ยนแปลง -->
   </div>
 
-  <!-- วาง block นี้ไว้บนสุดของ script -->
-  <script>
-    if (!sessionStorage.getItem('clearedOnce')) {
-      localStorage.clear();
-      sessionStorage.clear();
-      sessionStorage.setItem('clearedOnce', '1');
-      location.reload();
-    }
-  </script>
-  
   <script>
     const defaultURL = "https://app.solvelysaid.space";
     const fallbackURL = "https://solvelysaidbn.onrender.com";
@@ -118,7 +112,6 @@
       editedMenus[id] = { id, name, price, description };
     }
 
-    // ====== ส่วนนี้คือจุดที่ "แก้ไข" ให้รองรับ data-label ======
     function renderMenus(menus) {
       let html = '<table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
       menus.forEach(menu => {
@@ -148,7 +141,6 @@
       </div>`;
       document.getElementById('menuList').innerHTML = html;
     }
-    // ====== จบจุดที่ต้องแก้ไข ======
 
     document.getElementById('addMenuForm').onsubmit = function(e) {
       e.preventDefault();
@@ -181,7 +173,14 @@
         });
     }
 
-    
+    // เคลียร์ cache ครั้งแรก
+    if (!sessionStorage.getItem('clearedOnce')) {
+      localStorage.clear();
+      sessionStorage.clear();
+      sessionStorage.setItem('clearedOnce', '1');
+      location.reload();
+    }
+
     loadMenus();
   </script>
 </body>
