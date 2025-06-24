@@ -16,25 +16,34 @@ const defaultURL = "https://app.solvelysaid.space";
 const fallbackURL = "https://solvelysaidbn.onrender.com";
 let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
 
-// Helper function: ลองเชื่อมต่อ ถ้า error จะเปลี่ยน baseURL เป็น fallbackURL
+// Helper function: fetch พร้อมสลับ fallback ทันทีถ้า network error หรือ status error
 function fetchWithFallback(url, opt) {
-  return fetch(url, opt).then(r => {
-    // ถ้าสำเร็จ (รหัส 2xx) -> ใช้ baseURL นี้ต่อ
-    if (r.ok) {
-      sessionStorage.setItem("workingBaseURL", baseURL);
+  return fetch(url, opt)
+    .then(r => {
+      if (r.ok) {
+        sessionStorage.setItem("workingBaseURL", baseURL);
+        return r;
+      }
+      // ถ้า status error เช่น 404/500/530 ให้ลอง fallbackURL
+      if (baseURL !== fallbackURL) {
+        baseURL = fallbackURL;
+        return fetch(fallbackURL + url.slice(defaultURL.length), opt)
+          .then(r2 => {
+            if (r2.ok) sessionStorage.setItem("workingBaseURL", baseURL);
+            return r2;
+          });
+      }
       return r;
-    }
-    // ถ้า error -> ลอง fallbackURL ถ้ายังไม่ใช่ fallbackURL
-    if (baseURL !== fallbackURL) {
-      baseURL = fallbackURL;
-      return fetch(fallbackURL + url.slice(defaultURL.length), opt)
-        .then(r2 => {
-          if (r2.ok) sessionStorage.setItem("workingBaseURL", baseURL);
-          return r2;
-        });
-    }
-    return r;
-  });
+    })
+    .catch(err => {
+      // ถ้าเป็น network error (server ล่ม, ไม่เจอ) ให้เปลี่ยนเป็น fallbackURL ทันที
+      if (baseURL !== fallbackURL) {
+        baseURL = fallbackURL;
+        sessionStorage.setItem("workingBaseURL", baseURL);
+        return fetch(fallbackURL + url.slice(defaultURL.length), opt);
+      }
+      throw err;
+    });
 }
 
 function statusText(st) {
@@ -78,8 +87,6 @@ function renderOrders(orders) {
 }
 
 function fetchOrders() {
-  // cleanup ใช้ defaultURL เสมอ ไม่สน fallback
-  fetch(`${defaultURL}/orders/cleanup`, { method: "POST" });
   fetchWithFallback(`${baseURL}/orders`)
     .then(r => r.json())
     .then(data => renderOrders(data.orders))
@@ -117,6 +124,5 @@ window.deleteOrder = deleteOrder;
 fetchOrders();
 setInterval(fetchOrders, 12000);
 </script>
-
 </body>
 </html>
