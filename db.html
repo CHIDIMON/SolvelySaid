@@ -24,168 +24,174 @@
     <div id="menuList"></div>
   </div>
 
-  <script>
-    const defaultURL = "https://app.solvelysaid.space";
-    const fallbackURL = "https://solvelysaidbn.onrender.com";
-    let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
-    let editedMenus = {};
+<script>
+const defaultURL = "https://app.solvelysaid.space";
+const fallbackURL = "https://solvelysaidbn.onrender.com";
+let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
+let editedMenus = {};
 
-    function cacheMenus(menus) {
-      localStorage.setItem('menu_cache', JSON.stringify(menus));
+function cacheMenus(menus) {
+  localStorage.setItem('menu_cache', JSON.stringify(menus));
+}
+function getCachedMenus() {
+  const cache = localStorage.getItem('menu_cache');
+  if (cache) {
+    try { return JSON.parse(cache); } catch (e) {}
+  }
+  return null;
+}
+function clearMenuCache() {
+  localStorage.removeItem('menu_cache');
+}
+
+function loadMenus(requestFresh = false) {
+  if (!requestFresh) {
+    const cached = getCachedMenus();
+    if (cached && Array.isArray(cached)) {
+      renderMenus(cached);
+      return;
     }
-    function getCachedMenus() {
-      const cache = localStorage.getItem('menu_cache');
-      if (cache) {
-        try { return JSON.parse(cache); } catch (e) {}
+  }
+  fetch(baseURL + "/debug/menus")
+    .then(res => {
+      if (!res.ok) throw new Error("Fetch failed");
+      return res.json();
+    })
+    .then(data => {
+      if (data.menus) {
+        cacheMenus(data.menus);
+        renderMenus(data.menus);
+      } else {
+        document.getElementById('menuList').innerHTML = "ไม่พบเมนู";
       }
-      return null;
-    }
-    function clearMenuCache() {
-      localStorage.removeItem('menu_cache');
-    }
-
-    function loadMenus(requestFresh = false) {
-      if (!requestFresh) {
-        const cached = getCachedMenus();
-        if (cached && Array.isArray(cached)) {
-          renderMenus(cached);
-          return;
-        }
+      editedMenus = {};
+    })
+    .catch(() => {
+      if (baseURL !== fallbackURL) {
+        baseURL = fallbackURL;
+        sessionStorage.setItem("workingBaseURL", baseURL);
+        loadMenus(true);
+      } else {
+        document.getElementById('menuList').innerHTML = "ติดต่อ server ไม่ได้ กรุณาตรวจสอบ backend!";
       }
-      fetch(baseURL + "/debug/menus")
-        .then(res => {
-          if (!res.ok) throw new Error("Fetch failed");
-          return res.json();
-        })
-        .then(data => {
-          if (data.menus) {
-            cacheMenus(data.menus);
-            renderMenus(data.menus);
-          } else {
-            document.getElementById('menuList').innerHTML = "ไม่พบเมนู";
-          }
-          editedMenus = {};
-        })
-        .catch(() => {
-          if (baseURL !== fallbackURL) {
-            baseURL = fallbackURL;
-            sessionStorage.setItem("workingBaseURL", baseURL);
-            loadMenus(true);
-          } else {
-            document.getElementById('menuList').innerHTML = "ติดต่อ server ไม่ได้ กรุณาตรวจสอบ backend!";
-          }
-        });
-    }
+    });
+}
 
-    function refreshMenus() {
+function refreshMenus() {
+  clearMenuCache();
+  location.reload();
+}
+
+function saveAllEdits() {
+  const editedArray = Object.values(editedMenus);
+  if (!editedArray.length) return;
+  fetch(baseURL + "/menu/edit/batch", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ menus: editedArray })
+  })
+  .then(res => res.json())
+  .then(() => {
+    editedMenus = {};
+    clearMenuCache();
+    loadMenus(true);
+  });
+}
+
+function handleEditMenu(id) {
+  const name = document.getElementById('name_' + id).value;
+  const price = document.getElementById('price_' + id).value;
+  const description = document.getElementById('desc_' + id).value;
+  editedMenus[id] = { id, name, price, description };
+}
+
+// **** renderMenus: ป้องกันข้อมูลเบี้ยวจาก database, ป้องกัน tag ซ้อน ****
+function renderMenus(menus) {
+  let html = '<div class="container-table"><table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
+  menus.forEach(menu => {
+    // เช็คและ escape ข้อมูล ป้องกัน null/undefined
+    if(!menu.id || !menu.name) return;
+    let safeName = String(menu.name || '').replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    let safeDesc = String(menu.description || '').replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    let safePrice = (menu.price !== undefined && menu.price !== null) ? menu.price : "";
+    let imgUrl = baseURL + "/image/thumb/" + encodeURIComponent(menu.name);
+
+    html += `<tr>
+      <td data-label="รูป">
+        <img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;" 
+          onerror="this.style.display='none';">
+      </td>
+      <td data-label="ชื่อ">
+        <input value="${safeName}" id="name_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+      </td>
+      <td data-label="ราคา">
+        <input type="number" value="${safePrice}" id="price_${menu.id}" style="width:80px"
+          oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+      </td>
+      <td data-label="รายละเอียด">
+        <input value="${safeDesc}" id="desc_${menu.id}"
+          oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+      </td>
+      <td data-label="จัดการ">
+        <button class="delete-btn" onclick="deleteMenu('${menu.id}')" title="ลบ">delete</button>
+      </td>
+    </tr>`;
+  });
+  html += "</table></div>";
+  html += `<div style="text-align:center; margin-top:28px;">
+    <button class="save-btn" onclick="saveAllEdits()">Save</button>
+  </div>`;
+  document.getElementById('menuList').innerHTML = html;
+}
+
+document.getElementById('addMenuForm').onsubmit = async function(e) {
+  e.preventDefault();
+  try {
+    const formData = new FormData();
+    formData.append('name', document.getElementById('name').value);
+    formData.append('price', document.getElementById('price').value);
+    formData.append('description', document.getElementById('description').value);
+    if (document.getElementById('image').files[0]) {
+      formData.append('image', document.getElementById('image').files[0]);
+    }
+    const response = await fetch(baseURL + "/menu/add", {
+      method: "POST",
+      body: formData
+    });
+    if (!response.ok) {
+      return;
+    }
+    await response.json();
+    alert('เพิ่มเมนูสำเร็จ!');
+    this.reset();
+    clearMenuCache();
+    loadMenus(true);
+  } catch (err) {}
+};
+
+function deleteMenu(id) {
+  if (!confirm("ลบเมนูนี้จริงหรือ?")) return;
+  fetch(baseURL + "/menu/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: id })
+  }).then(res => res.json())
+    .then(() => {
       clearMenuCache();
-      location.reload();
-    }
+      loadMenus(true);
+    });
+}
 
-    function saveAllEdits() {
-      const editedArray = Object.values(editedMenus);
-      if (!editedArray.length) return;
-      fetch(baseURL + "/menu/edit/batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ menus: editedArray })
-      })
-      .then(res => res.json())
-      .then(() => {
-        editedMenus = {};
-        clearMenuCache();
-        loadMenus(true);
-      });
-    }
+try {
+  if (!sessionStorage.getItem('clearedOnce')) {
+    localStorage.clear();
+    sessionStorage.clear();
+    sessionStorage.setItem('clearedOnce', '1');
+    location.reload();
+  }
+} catch (e) {}
 
-    function handleEditMenu(id) {
-      const name = document.getElementById('name_' + id).value;
-      const price = document.getElementById('price_' + id).value;
-      const description = document.getElementById('desc_' + id).value;
-      editedMenus[id] = { id, name, price, description };
-    }
-
-    // *** สำคัญ! renderMenus แบบ floating card table ***
-    function renderMenus(menus) {
-      let html = '<div class="container-table"><table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
-      menus.forEach(menu => {
-        let imgUrl = baseURL + "/image/thumb/" + encodeURIComponent(menu.name);
-        html += `<tr>
-          <td data-label="รูป">
-            <img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;"
-              onerror="this.style.display='none';">
-          </td>
-          <td data-label="ชื่อ">
-            <input value="${menu.name}" id="name_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
-          </td>
-          <td data-label="ราคา">
-            <input type="number" value="${menu.price}" id="price_${menu.id}" style="width:80px"
-              oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
-          </td>
-          <td data-label="รายละเอียด">
-            <input value="${menu.description || ''}" id="desc_${menu.id}"
-              oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
-          </td>
-          <td data-label="จัดการ">
-            <button class="delete-btn" onclick="deleteMenu('${menu.id}')" title="ลบ">delete</button>
-          </td>
-        </tr>`;
-      });
-      html += "</table></div>";
-      html += `<div style="text-align:center; margin-top:28px;">
-        <button class="save-btn" onclick="saveAllEdits()">Save</button>
-      </div>`;
-      document.getElementById('menuList').innerHTML = html;
-    }
-
-    document.getElementById('addMenuForm').onsubmit = async function(e) {
-      e.preventDefault();
-      try {
-        const formData = new FormData();
-        formData.append('name', document.getElementById('name').value);
-        formData.append('price', document.getElementById('price').value);
-        formData.append('description', document.getElementById('description').value);
-        if (document.getElementById('image').files[0]) {
-          formData.append('image', document.getElementById('image').files[0]);
-        }
-        const response = await fetch(baseURL + "/menu/add", {
-          method: "POST",
-          body: formData
-        });
-        if (!response.ok) {
-          return;
-        }
-        await response.json();
-        alert('เพิ่มเมนูสำเร็จ!');
-        this.reset();
-        clearMenuCache();
-        loadMenus(true);
-      } catch (err) {}
-    };
-
-    function deleteMenu(id) {
-      if (!confirm("ลบเมนูนี้จริงหรือ?")) return;
-      fetch(baseURL + "/menu/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: id })
-      }).then(res => res.json())
-        .then(() => {
-          clearMenuCache();
-          loadMenus(true);
-        });
-    }
-
-    try {
-      if (!sessionStorage.getItem('clearedOnce')) {
-        localStorage.clear();
-        sessionStorage.clear();
-        sessionStorage.setItem('clearedOnce', '1');
-        location.reload();
-      }
-    } catch (e) {}
-
-    loadMenus();
-  </script>
+loadMenus();
+</script>
 </body>
 </html>
