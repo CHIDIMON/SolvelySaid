@@ -187,26 +187,28 @@ button:hover { background: #4d2eee; }
     background: #f4f5fa;
   }
   .container {
-    max-width: 98vw;
-    margin: 24px auto !important;
-    padding: 24px 16vw 22px 16vw !important;
-    border-radius: 19px;
-    font-size: 0.93em;  /* ย่อเนื้อหาในมือถือ */
+    max-width: 540px;
+    width: 93vw;
+    margin: 30px auto !important;
+    padding: 24px 6vw 18px 6vw !important;
+    border-radius: 22px;
+    font-size: 0.95em;
+    box-shadow: 0 6px 36px 0 rgba(25,0,136,0.09);
   }
   .menu-card-list {
-    gap: 22px; /* ช่องไฟระหว่างบัตรเมนู */
+    gap: 18px;
   }
   .menu-card {
-    padding: 12px 3vw;
-    min-height: 36px;
-    border-radius: 16px;
-    font-size: 0.95em;
+    padding: 12px 2vw;
+    min-height: 32px;
+    border-radius: 15px;
+    font-size: 0.96em;
   }
   .menu-card-img { width: 26px; height: 26px; }
-  .menu-card-detail { gap: 9px; }
-  .menu-card-inputs { gap: 8px;}
-  .menu-card-inputs input { font-size: 0.94em; width: 57px; max-width: 67px; min-width: 26px; padding: 5px 6px;}
-  .menu-card-inputs input.detail-input { width: 70px; max-width: 75px; min-width: 22px;}
+  .menu-card-detail { gap: 7px;}
+  .menu-card-inputs { gap: 6px;}
+  .menu-card-inputs input { font-size: 0.94em; width: 57px; max-width: 70px; min-width: 27px; padding: 5px 6px;}
+  .menu-card-inputs input.detail-input { width: 78px; max-width: 85px; min-width: 32px;}
   .menu-card-inputs input.detail-input:focus { width: 95vw; max-width: 99vw; }
-  .delete-btn, .save-btn { font-size: 0.96em; padding: 3px 11px; }
+  .delete-btn, .save-btn { font-size: 0.98em; padding: 4px 13px; }
 }
