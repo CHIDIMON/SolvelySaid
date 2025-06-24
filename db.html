@@ -12,7 +12,7 @@
       <input type="text" id="name" placeholder="ชื่อเมนู" required>
       <input type="number" id="price" placeholder="ราคา" required>
       <textarea id="description" placeholder="รายละเอียดเมนู"></textarea>
-      <input type="file" id="image" accept="image/*">
+      <input type="file" id="image" accept="image/*" capture="environment">
       <button type="submit">เพิ่มเมนู</button>
     </form>
     <hr>
@@ -158,8 +158,8 @@
       console.log("Form submit event เรียกใช้งานแล้ว");
     });
 
-    document.getElementById('addMenuForm').onsubmit = function(e) {
-      alert("onsubmit handler ทำงาน");
+    // แก้ไขฟังก์ชัน submit ใหม่
+    document.getElementById('addMenuForm').onsubmit = async function(e) {
       e.preventDefault();
 
       try {
@@ -167,37 +167,36 @@
         formData.append('name', document.getElementById('name').value);
         formData.append('price', document.getElementById('price').value);
         formData.append('description', document.getElementById('description').value);
-        if (document.getElementById('image').files.length > 0) {
+        
+        if (document.getElementById('image').files[0]) {
           formData.append('image', document.getElementById('image').files[0]);
           alert("เพิ่มไฟล์รูปใน FormData แล้ว");
         } else {
           alert("ไม่ได้แนบรูป (หรือไม่ได้เลือก)");
         }
 
-        alert("formData entries: " + JSON.stringify([...formData.entries()]));
-        alert("กำลัง fetch ไปยัง backend: " + baseURL + "/menu/add");
+        alert("กำลังส่งข้อมูลไปยัง backend: " + baseURL + "/menu/add");
 
-        fetch(baseURL + "/menu/add", {
+        const response = await fetch(baseURL + "/menu/add", {
           method: "POST",
           body: formData
-        }).then(res => {
-          alert("fetch ส่งข้อมูลไปแล้ว รอ json กลับ status=" + res.status);
-          if (!res.ok) return res.text().then(t => { throw new Error("HTTP " + res.status + ": " + t); });
-          return res.json();
-        })
-          .then((data) => {
-            alert("เพิ่มเมนูเสร็จเรียบร้อย data=" + JSON.stringify(data));
-            this.reset();
-            clearMenuCache();
-            loadMenus(true);
-          })
-          .catch((err) => {
-            alert("เกิด error ระหว่างเพิ่มเมนู: " + err.message);
-            console.log("error:", err);
-          });
-      } catch (e) {
-        alert("Exception onsubmit: " + e.message);
-        console.log("Exception in onsubmit:", e);
+        });
+
+        alert("fetch ส่งข้อมูลไปแล้ว status=" + response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error("HTTP " + response.status + ": " + errorText);
+        }
+
+        const data = await response.json();
+        alert("เพิ่มเมนูเสร็จเรียบร้อย data=" + JSON.stringify(data));
+        this.reset();
+        clearMenuCache();
+        loadMenus(true);
+      } catch (err) {
+        alert("เกิด error ระหว่างเพิ่มเมนู: " + err.message);
+        console.log("error:", err);
       }
     };
 
