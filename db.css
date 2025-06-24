@@ -187,16 +187,26 @@ button:hover { background: #4d2eee; }
     background: #f4f5fa;
   }
   .container {
-    max-width: 97vw;
-    margin: 16px auto !important;
-    padding: 18px 4vw 14px 4vw !important;
-    border-radius: 13px;
+    max-width: 98vw;
+    margin: 24px auto !important;
+    padding: 24px 16vw 22px 16vw !important;
+    border-radius: 19px;
+    font-size: 0.93em;  /* ย่อเนื้อหาในมือถือ */
   }
-  .menu-card { flex-direction: row; align-items: center; padding: 7px 2vw; font-size: 0.96em; min-height: 28px;}
-  .menu-card-img { width: 28px; height: 28px; }
-  .menu-card-detail { gap: 6px;}
-  .menu-card-inputs { gap: 6px;}
-  .menu-card-inputs input { font-size: 0.97em; width: 63px; max-width: 80px; min-width: 34px; padding: 5px 6px;}
-  .menu-card-inputs input.detail-input { width: 86px; max-width: 96px; min-width: 35px;}
+  .menu-card-list {
+    gap: 22px; /* ช่องไฟระหว่างบัตรเมนู */
+  }
+  .menu-card {
+    padding: 12px 3vw;
+    min-height: 36px;
+    border-radius: 16px;
+    font-size: 0.95em;
+  }
+  .menu-card-img { width: 26px; height: 26px; }
+  .menu-card-detail { gap: 9px; }
+  .menu-card-inputs { gap: 8px;}
+  .menu-card-inputs input { font-size: 0.94em; width: 57px; max-width: 67px; min-width: 26px; padding: 5px 6px;}
+  .menu-card-inputs input.detail-input { width: 70px; max-width: 75px; min-width: 22px;}
   .menu-card-inputs input.detail-input:focus { width: 95vw; max-width: 99vw; }
+  .delete-btn, .save-btn { font-size: 0.96em; padding: 3px 11px; }
 }
