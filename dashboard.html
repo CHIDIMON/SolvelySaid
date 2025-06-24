@@ -37,10 +37,12 @@ function renderOrders(orders) {
   orders.forEach(order => {
     let time = order.timestamp ? new Date(order.timestamp).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : "-";
     let items = (order.menus || []).map((m,i) => `<li>${i+1}. ${m.name}${m.qty?` x${m.qty}`:""}</li>`).join('');
-    let canFinish = true;
+    let showFinish = order.status !== "served";
+    let showDelete = order.status === "served";
     list.innerHTML += `
       <div class="order-card" data-id="${order.id}">
-        ${canFinish ? `<button class="finish-btn" onclick="finishOrder('${order.id}', this)">Click To Finish</button>` : ""}
+        ${showFinish ? `<button class="finish-btn" onclick="finishOrder('${order.id}', this)">Click To Finish</button>` : ""}
+        ${showDelete ? `<button class="finish-btn" style="background:#212121;" onclick="deleteOrder('${order.id}', this)">Click To Delete</button>` : ""}
         <div class="order-header">
           <span class="table-id">โต๊ะ ${order.table_number || "-"}</span>
           <span class="order-time">⏰ ${time}</span>
@@ -53,9 +55,7 @@ function renderOrders(orders) {
 }
 
 function fetchOrders() {
-  // cleanup ก่อนทุกครั้ง
   fetch(`${BASE_URL}/orders/cleanup`, { method: "POST" });
-
   fetch(`${BASE_URL}/orders`)
     .then(r => r.json())
     .then(data => renderOrders(data.orders))
@@ -66,7 +66,19 @@ function fetchOrders() {
 
 function finishOrder(orderId, btn) {
   btn.disabled = true;
-  btn.textContent = "✔ เสร็จแล้ว";
+  btn.textContent = "เสร็จสิ้น";
+  fetch(`${BASE_URL}/order/status`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ order_id: orderId, status: "served" })
+  }).then(() => {
+    setTimeout(fetchOrders, 400);
+  });
+}
+
+function deleteOrder(orderId, btn) {
+  btn.disabled = true;
+  btn.textContent = "ลบแล้ว";
   fetch(`${BASE_URL}/order/delete`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -77,6 +89,7 @@ function finishOrder(orderId, btn) {
 }
 
 window.finishOrder = finishOrder;
+window.deleteOrder = deleteOrder;
 fetchOrders();
 setInterval(fetchOrders, 12000);
 </script>
