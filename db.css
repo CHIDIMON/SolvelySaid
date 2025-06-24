@@ -17,7 +17,6 @@ h2, h3 {
   color: #190088;
 }
 
-/* เพิ่มระยะห่างบน-ล่างให้ h3 เพื่อให้ดูสมดุลหลังจากนำ block ออก */
 h3 {
   margin-top: 24px;
   margin-bottom: 16px;
@@ -92,7 +91,6 @@ button:hover {
   50% { background: #cdc7f0; box-shadow: 0 0 24px #b0b0ff; }
 }
 
-/* ปุ่ม delete สีแดง ขอบแดง ตัวอักษรแดง พื้นขาว */
 .delete-btn {
   padding: 8px 16px;
   font-size: 0.98em;
@@ -131,10 +129,6 @@ button:hover {
   color: #fff;
 }
 
-/* --- ส่วนที่ลบออก --- */
-/* ลบ .menu-admin-block ที่ไม่จำเป็นออกทั้งหมด */
-/* --- จบส่วนที่ลบ --- */
-
 table {
   width: 100%;
   border-collapse: separate;
@@ -160,52 +154,57 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
 
 /* Responsive for mobile */
 @media (max-width: 600px) {
-  /* ลบ .menu-admin-block ในส่วน responsive ออก */
-  
-  table, thead, tbody, tr, th, td {
+  table, thead, tbody, th, td {
     display: block !important;
     width: 100% !important;
     background: none !important;
     box-shadow: none !important;
     border-radius: 0 !important;
   }
+  
   thead {
     display: none !important;
   }
+
+  /* --- ส่วนที่แก้ไขสำหรับ Mobile --- */
   tr {
-    margin-bottom: 0px !important;
-    padding: 0 !important;
-    background: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
+    display: block !important;
+    padding-bottom: 16px !important; /* เพิ่มระยะห่างด้านล่างก่อนเส้นคั่น */
+    margin-bottom: 16px !important;  /* เพิ่มระยะห่างระหว่างแต่ละรายการ */
+    border-bottom: 1.5px solid #ececf4 !important; /* เพิ่มเส้นคั่น */
   }
+
+  /* ทำให้รายการสุดท้ายไม่มีเส้นคั่นและระยะห่าง */
+  tr:last-of-type {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+  }
+  /* --- จบส่วนที่แก้ไข --- */
+
   td {
-    padding: 8px 2vw 6px 2vw !important;
+    padding: 6px 2vw !important; /* ปรับ padding ให้กระชับขึ้น */
     border: none !important;
     text-align: left !important;
     position: relative;
-    background: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
   }
+  
   td:before {
     content: attr(data-label);
     font-size: 0.92em;
     font-weight: 600;
     color: #707099;
     display: block;
-    margin-bottom: 2px;
+    margin-bottom: 4px; /* เพิ่มระยะห่าง label กับ input */
   }
+
   td:last-child {
     display: flex !important;
     gap: 8px;
     flex-wrap: wrap;
     justify-content: flex-start;
-    padding-bottom: 10px !important;
-    background: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
+    padding-top: 10px !important;
   }
+
   td:last-child button,
   td:last-child .save-btn,
   td:last-child .delete-btn {
@@ -217,11 +216,12 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     justify-content: center;
     align-items: center;
   }
+
   td img {
     display: block;
     margin: 0 auto 8px auto;
-    max-width: 70px;
-    max-height: 70px;
+    width: 70px; /* กำหนดขนาดให้ชัดเจน */
+    height: 70px;
     border-radius: 8px;
     object-fit: cover;
   }
