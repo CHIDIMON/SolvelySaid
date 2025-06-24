@@ -24,12 +24,11 @@
 
   <!-- วาง block นี้ไว้บนสุดของ script -->
   <script>
-    // เคลียร์ cache + reload อัตโนมัติแค่ตอนแรกที่เข้า tab
     if (!sessionStorage.getItem('clearedOnce')) {
-      localStorage.clear();        // ลบ cache localStorage ทั้งหมด
-      sessionStorage.clear();      // ลบ sessionStorage เก่าๆ
-      sessionStorage.setItem('clearedOnce', '1'); // mark ว่าเคลียร์แล้ว
-      location.reload();           // reload หน้า 1 รอบ
+      localStorage.clear();
+      sessionStorage.clear();
+      sessionStorage.setItem('clearedOnce', '1');
+      location.reload();
     }
   </script>
   
@@ -54,7 +53,6 @@
       localStorage.removeItem('menu_cache');
     }
 
-    // โหลดเมนูทั้งหมด (ใช้ fallback อัตโนมัติ + cache)
     function loadMenus(requestFresh = false) {
       if (!requestFresh) {
         const cached = getCachedMenus();
@@ -93,7 +91,6 @@
       location.reload();
     }
 
-    // บันทึกการแก้ไขทั้งหมด
     function saveAllEdits() {
       const editedArray = Object.values(editedMenus);
       if (!editedArray.length) {
@@ -109,12 +106,11 @@
       .then(data => {
         editedMenus = {};
         clearMenuCache();
-        loadMenus(true); // โหลดตารางใหม่ ไม่รีหน้า
+        loadMenus(true);
       })
       .catch(() => alert("เกิดข้อผิดพลาดในการบันทึก"));
     }
 
-    // จัดการแก้ไขแต่ละแถว
     function handleEditMenu(id) {
       const name = document.getElementById('name_' + id).value;
       const price = document.getElementById('price_' + id).value;
@@ -122,17 +118,26 @@
       editedMenus[id] = { id, name, price, description };
     }
 
-    // แสดงรายการเมนู
+    // ====== ส่วนนี้คือจุดที่ "แก้ไข" ให้รองรับ data-label ======
     function renderMenus(menus) {
       let html = '<table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
       menus.forEach(menu => {
         let imgUrl = baseURL + "/image/thumb/" + encodeURIComponent(menu.name);
         html += `<tr>
-          <td><img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;" onerror="this.src='https://via.placeholder.com/55x55?text=No+Img';"></td>
-          <td><input value="${menu.name}" id="name_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')"></td>
-          <td><input type="number" value="${menu.price}" id="price_${menu.id}" style="width:80px" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')"></td>
-          <td><input value="${menu.description || ''}" id="desc_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')"></td>
-          <td>
+          <td data-label="รูป">
+            <img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;" 
+              onerror="this.src='https://via.placeholder.com/55x55?text=No+Img';">
+          </td>
+          <td data-label="ชื่อ">
+            <input value="${menu.name}" id="name_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+          </td>
+          <td data-label="ราคา">
+            <input type="number" value="${menu.price}" id="price_${menu.id}" style="width:80px" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+          </td>
+          <td data-label="รายละเอียด">
+            <input value="${menu.description || ''}" id="desc_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+          </td>
+          <td data-label="จัดการ">
             <button class="delete-btn" onclick="deleteMenu('${menu.id}')" title="ลบ">delete</button>
           </td>
         </tr>`;
@@ -143,8 +148,8 @@
       </div>`;
       document.getElementById('menuList').innerHTML = html;
     }
+    // ====== จบจุดที่ต้องแก้ไข ======
 
-    // เพิ่มเมนูใหม่
     document.getElementById('addMenuForm').onsubmit = function(e) {
       e.preventDefault();
       fetch(baseURL + "/menu/add", {
@@ -163,7 +168,6 @@
         });
     };
 
-    // ลบเมนู (ใส่ confirm ก่อนลบ)
     function deleteMenu(id) {
       if (!confirm("ลบเมนูนี้จริงหรือ?")) return;
       fetch(baseURL + "/menu/delete", {
@@ -177,7 +181,6 @@
         });
     }
 
-    // เริ่มโหลดเมนู
     loadMenus();
   </script>
 </body>

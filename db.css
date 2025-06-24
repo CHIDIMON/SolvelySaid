@@ -149,14 +149,13 @@ th:first-child, td:first-child { border-radius: 8px 0 0 8px; }
 th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
 
 /* Responsive for mobile */
-
-
 @media (max-width: 600px) {
   .container {
     padding: 12px 2vw 10px 2vw;
     margin: 16px 4px;
     border-radius: 18px;
     box-shadow: 0 2px 18px 0 rgba(25,0,136,0.09);
+    max-width: 99vw;
   }
 
   form {
@@ -168,10 +167,12 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     font-size: 1.05em;
     padding: 10px 14px;
     border-radius: 12px;
+    width: 100% !important;
+    box-sizing: border-box;
   }
 
   button, .save-btn, .delete-btn, .refresh-btn {
-    width: 100%;
+    width: 100% !important;
     font-size: 1em;
     margin: 4px 0;
     padding: 12px 0;
@@ -179,6 +180,7 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     min-width: 0;
     display: block;
     text-align: center;
+    box-sizing: border-box;
   }
 
   /* Table to Card view */
@@ -203,6 +205,7 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     border: none;
     position: relative;
     text-align: left;
+    /* เพื่อรองรับ label */
   }
   td:before {
     content: attr(data-label);
@@ -213,7 +216,7 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     margin-bottom: 2px;
   }
 
-  /* Adjust buttons in last cell to be in a row, not stacked */
+  /* ปรับปุ่ม delete/save ให้ต่อกันเป็น row */
   td:last-child {
     display: flex !important;
     gap: 8px;
@@ -232,4 +235,20 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     justify-content: center;
     align-items: center;
   }
+
+  /* ปรับขนาดรูปใน mobile */
+  td img {
+    display: block;
+    margin: 0 auto 8px auto;
+    max-width: 70px;
+    max-height: 70px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+}
+
+/* ป้องกัน input หรือปุ่มหลุดกรอบใน desktop ด้วย */
+input, textarea, button, .save-btn, .delete-btn, .refresh-btn {
+  max-width: 100%;
+  box-sizing: border-box;
 }
