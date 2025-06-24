@@ -23,7 +23,6 @@
     </h3>
     <div id="menuList"></div>
   </div>
-
 <script>
 const defaultURL = "https://app.solvelysaid.space";
 const fallbackURL = "https://solvelysaidbn.onrender.com";
@@ -105,39 +104,35 @@ function handleEditMenu(id) {
   editedMenus[id] = { id, name, price, description };
 }
 
-// **** renderMenus: ป้องกันข้อมูลเบี้ยวจาก database, ป้องกัน tag ซ้อน ****
 function renderMenus(menus) {
-  let html = '<div class="container-table"><table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
+  let html = '<ul class="menu-card-list">';
   menus.forEach(menu => {
-    // เช็คและ escape ข้อมูล ป้องกัน null/undefined
     if(!menu.id || !menu.name) return;
     let safeName = String(menu.name || '').replace(/</g,"&lt;").replace(/>/g,"&gt;");
     let safeDesc = String(menu.description || '').replace(/</g,"&lt;").replace(/>/g,"&gt;");
     let safePrice = (menu.price !== undefined && menu.price !== null) ? menu.price : "";
     let imgUrl = baseURL + "/image/thumb/" + encodeURIComponent(menu.name);
 
-    html += `<tr>
-      <td data-label="รูป">
-        <img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;" 
-          onerror="this.style.display='none';">
-      </td>
-      <td data-label="ชื่อ">
-        <input value="${safeName}" id="name_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
-      </td>
-      <td data-label="ราคา">
-        <input type="number" value="${safePrice}" id="price_${menu.id}" style="width:80px"
-          oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
-      </td>
-      <td data-label="รายละเอียด">
-        <input value="${safeDesc}" id="desc_${menu.id}"
-          oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
-      </td>
-      <td data-label="จัดการ">
+    html += `<li class="menu-card">
+      <img class="menu-card-img" src="${imgUrl}" alt="img" onerror="this.style.display='none';">
+      <div class="menu-card-detail">
+        <div class="menu-card-inputs">
+          <input value="${safeName}" id="name_${menu.id}" placeholder="ชื่อเมนู"
+            oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+          <input type="number" value="${safePrice}" id="price_${menu.id}" placeholder="ราคา"
+            oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+        </div>
+        <div class="menu-card-inputs">
+          <input value="${safeDesc}" id="desc_${menu.id}" placeholder="รายละเอียด"
+            oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+        </div>
+      </div>
+      <div class="menu-card-actions">
         <button class="delete-btn" onclick="deleteMenu('${menu.id}')" title="ลบ">delete</button>
-      </td>
-    </tr>`;
+      </div>
+    </li>`;
   });
-  html += "</table></div>";
+  html += '</ul>';
   html += `<div style="text-align:center; margin-top:28px;">
     <button class="save-btn" onclick="saveAllEdits()">Save</button>
   </div>`;
