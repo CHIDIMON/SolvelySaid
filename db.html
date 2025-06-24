@@ -24,12 +24,6 @@
   </div>
 
   <script>
-    // DEBUG: จับ error ทุกอย่างบนหน้าเว็บ
-    window.onerror = function(message, source, lineno, colno, error) {
-      alert("JS Error: " + message + " @ " + source + " (" + lineno + ":" + colno + ")");
-      console.log("JS Error:", message, "at", source, "line", lineno, "col", colno, "error:", error);
-    };
-
     const defaultURL = "https://app.solvelysaid.space";
     const fallbackURL = "https://solvelysaidbn.onrender.com";
     let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
@@ -71,15 +65,13 @@
           }
           editedMenus = {};
         })
-        .catch(err => {
-          alert("loadMenus error: " + err.message);
+        .catch(() => {
           if (baseURL !== fallbackURL) {
             baseURL = fallbackURL;
             sessionStorage.setItem("workingBaseURL", baseURL);
-            alert("เปลี่ยน baseURL เป็น fallback");
             loadMenus(true);
           } else {
-            alert("ติดต่อ server ไม่ได้ กรุณาตรวจสอบ backend!");
+            document.getElementById('menuList').innerHTML = "ติดต่อ server ไม่ได้ กรุณาตรวจสอบ backend!";
           }
         });
     }
@@ -91,22 +83,18 @@
 
     function saveAllEdits() {
       const editedArray = Object.values(editedMenus);
-      if (!editedArray.length) {
-        alert('ไม่มีข้อมูลที่แก้ไข');
-        return;
-      }
+      if (!editedArray.length) return;
       fetch(baseURL + "/menu/edit/batch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ menus: editedArray })
       })
       .then(res => res.json())
-      .then(data => {
+      .then(() => {
         editedMenus = {};
         clearMenuCache();
         loadMenus(true);
-      })
-      .catch(() => alert("เกิดข้อผิดพลาดในการบันทึก"));
+      });
     }
 
     function handleEditMenu(id) {
@@ -146,58 +134,28 @@
       document.getElementById('menuList').innerHTML = html;
     }
 
-    // DEBUG: จับการเปลี่ยนไฟล์
-    document.getElementById('image').addEventListener('change', function() {
-      alert("เลือกไฟล์รูปแล้ว! files.length=" + this.files.length);
-      console.log("เลือกไฟล์รูปแล้ว:", this.files);
-    });
-
-    // DEBUG: จับ submit
-    document.getElementById('addMenuForm').addEventListener('submit', function(e) {
-      alert("Form กำลังจะ submit!");
-      console.log("Form submit event เรียกใช้งานแล้ว");
-    });
-
-    // แก้ไขฟังก์ชัน submit ใหม่
     document.getElementById('addMenuForm').onsubmit = async function(e) {
       e.preventDefault();
-
       try {
         const formData = new FormData();
         formData.append('name', document.getElementById('name').value);
         formData.append('price', document.getElementById('price').value);
         formData.append('description', document.getElementById('description').value);
-        
         if (document.getElementById('image').files[0]) {
           formData.append('image', document.getElementById('image').files[0]);
-          alert("เพิ่มไฟล์รูปใน FormData แล้ว");
-        } else {
-          alert("ไม่ได้แนบรูป (หรือไม่ได้เลือก)");
         }
-
-        alert("กำลังส่งข้อมูลไปยัง backend: " + baseURL + "/menu/add");
-
         const response = await fetch(baseURL + "/menu/add", {
           method: "POST",
           body: formData
         });
-
-        alert("fetch ส่งข้อมูลไปแล้ว status=" + response.status);
-        
         if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error("HTTP " + response.status + ": " + errorText);
+          return;
         }
-
-        const data = await response.json();
-        alert("เพิ่มเมนูเสร็จเรียบร้อย data=" + JSON.stringify(data));
+        await response.json();
         this.reset();
         clearMenuCache();
         loadMenus(true);
-      } catch (err) {
-        alert("เกิด error ระหว่างเพิ่มเมนู: " + err.message);
-        console.log("error:", err);
-      }
+      } catch (err) {}
     };
 
     function deleteMenu(id) {
@@ -207,16 +165,12 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: id })
       }).then(res => res.json())
-        .then((data) => {
+        .then(() => {
           clearMenuCache();
           loadMenus(true);
-        })
-        .catch((err) => {
-          alert("เกิด error ระหว่างลบ: " + err.message);
         });
     }
 
-    // เคลียร์ cache ครั้งแรก
     try {
       if (!sessionStorage.getItem('clearedOnce')) {
         localStorage.clear();
@@ -224,9 +178,7 @@
         sessionStorage.setItem('clearedOnce', '1');
         location.reload();
       }
-    } catch (e) {
-      alert("Error ใช้งาน sessionStorage/localStorage: " + e.message);
-    }
+    } catch (e) {}
 
     loadMenus();
   </script>
