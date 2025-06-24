@@ -12,16 +12,16 @@
       <input type="text" id="name" placeholder="ชื่อเมนู" required>
       <input type="number" id="price" placeholder="ราคา" required>
       <textarea id="description" placeholder="รายละเอียดเมนู"></textarea>
+      <input type="file" id="image" accept="image/*"> <!-- เพิ่มส่วนนี้ -->
       <button type="submit">เพิ่มเมนู</button>
     </form>
     <hr>
-    
     <h3>
       รายการเมนูทั้งหมด
       <button type="button" onclick="refreshMenus()" class="refresh-btn">รีเฟรช</button>
     </h3>
     <div id="menuList"></div>
-    </div>
+  </div>
 
   <script>
     const defaultURL = "https://app.solvelysaid.space";
@@ -139,16 +139,21 @@
       document.getElementById('menuList').innerHTML = html;
     }
 
+    // ** ส่วนที่เปลี่ยนใหม่สำหรับอัปโหลดไฟล์ **
     document.getElementById('addMenuForm').onsubmit = function(e) {
       e.preventDefault();
+
+      const formData = new FormData();
+      formData.append('name', document.getElementById('name').value);
+      formData.append('price', document.getElementById('price').value);
+      formData.append('description', document.getElementById('description').value);
+      if (document.getElementById('image').files.length > 0) {
+        formData.append('image', document.getElementById('image').files[0]);
+      }
+
       fetch(baseURL + "/menu/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: document.getElementById('name').value,
-          price: document.getElementById('price').value,
-          description: document.getElementById('description').value,
-        })
+        body: formData
       }).then(res => res.json())
         .then(() => {
           this.reset();
