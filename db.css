@@ -150,48 +150,14 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
 
 /* Responsive for mobile */
 @media (max-width: 600px) {
-  .container {
-    padding: 12px 2vw 10px 2vw;
-    margin: 16px 4px;
-    border-radius: 18px;
-    box-shadow: 0 2px 18px 0 rgba(25,0,136,0.09);
-    max-width: 99vw;
-  }
-
-  form {
-    gap: 10px;
-    padding: 0 2vw;
-  }
-
-  input, textarea {
-    font-size: 1.05em;
-    padding: 10px 14px;
-    border-radius: 12px;
+  table, thead, tbody, tr, th, td {
+    display: block !important;
     width: 100% !important;
-    box-sizing: border-box;
+    background: none !important;
   }
-
-  button, .save-btn, .delete-btn, .refresh-btn {
-    width: 100% !important;
-    font-size: 1em;
-    margin: 4px 0;
-    padding: 12px 0;
-    border-radius: 24px;
-    min-width: 0;
-    display: block;
-    text-align: center;
-    box-sizing: border-box;
+  thead {
+    display: none !important;
   }
-
-  /* Table to Card view */
-  table, thead, tbody, th, td, tr { 
-    display: block;
-    width: 100%;
-    background: transparent;
-  }
-
-  thead { display: none; }
-  
   tr {
     background: #fafaff;
     margin-bottom: 18px;
@@ -199,13 +165,11 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     box-shadow: 0 2px 6px rgba(25,0,136,0.06);
     padding: 10px 4px 6px 4px;
   }
-  
   td {
     padding: 8px 4vw 6px 4vw;
-    border: none;
+    border: none !important;
+    text-align: left !important;
     position: relative;
-    text-align: left;
-    /* เพื่อรองรับ label */
   }
   td:before {
     content: attr(data-label);
@@ -215,8 +179,7 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     display: block;
     margin-bottom: 2px;
   }
-
-  /* ปรับปุ่ม delete/save ให้ต่อกันเป็น row */
+  /* ปรับปุ่มใน cell สุดท้าย */
   td:last-child {
     display: flex !important;
     gap: 8px;
@@ -235,8 +198,7 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     justify-content: center;
     align-items: center;
   }
-
-  /* ปรับขนาดรูปใน mobile */
+  /* รูป */
   td img {
     display: block;
     margin: 0 auto 8px auto;
@@ -245,10 +207,4 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     border-radius: 8px;
     object-fit: cover;
   }
-}
-
-/* ป้องกัน input หรือปุ่มหลุดกรอบใน desktop ด้วย */
-input, textarea, button, .save-btn, .delete-btn, .refresh-btn {
-  max-width: 100%;
-  box-sizing: border-box;
 }
