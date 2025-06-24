@@ -12,7 +12,30 @@
     <div class="order-list" id="orderList"></div>
   </div>
 <script>
-const BASE_URL = "https://app.solvelysaid.space";
+const defaultURL = "https://app.solvelysaid.space";
+const fallbackURL = "https://solvelysaidbn.onrender.com";
+let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
+
+// Helper function: ลองเชื่อมต่อ ถ้า error จะเปลี่ยน baseURL เป็น fallbackURL
+function fetchWithFallback(url, opt) {
+  return fetch(url, opt).then(r => {
+    // ถ้าสำเร็จ (รหัส 2xx) -> ใช้ baseURL นี้ต่อ
+    if (r.ok) {
+      sessionStorage.setItem("workingBaseURL", baseURL);
+      return r;
+    }
+    // ถ้า error -> ลอง fallbackURL ถ้ายังไม่ใช่ fallbackURL
+    if (baseURL !== fallbackURL) {
+      baseURL = fallbackURL;
+      return fetch(fallbackURL + url.slice(defaultURL.length), opt)
+        .then(r2 => {
+          if (r2.ok) sessionStorage.setItem("workingBaseURL", baseURL);
+          return r2;
+        });
+    }
+    return r;
+  });
+}
 
 function statusText(st) {
   if(st === "waiting") return "🟡 รอทำอาหาร";
@@ -55,8 +78,9 @@ function renderOrders(orders) {
 }
 
 function fetchOrders() {
-  fetch(`${BASE_URL}/orders/cleanup`, { method: "POST" });
-  fetch(`${BASE_URL}/orders`)
+  // cleanup ใช้ defaultURL เสมอ ไม่สน fallback
+  fetch(`${defaultURL}/orders/cleanup`, { method: "POST" });
+  fetchWithFallback(`${baseURL}/orders`)
     .then(r => r.json())
     .then(data => renderOrders(data.orders))
     .catch(() => {
@@ -67,7 +91,7 @@ function fetchOrders() {
 function finishOrder(orderId, btn) {
   btn.disabled = true;
   btn.textContent = "เสร็จสิ้น";
-  fetch(`${BASE_URL}/order/status`, {
+  fetchWithFallback(`${baseURL}/order/status`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ order_id: orderId, status: "served" })
@@ -79,7 +103,7 @@ function finishOrder(orderId, btn) {
 function deleteOrder(orderId, btn) {
   btn.disabled = true;
   btn.textContent = "ลบแล้ว";
-  fetch(`${BASE_URL}/order/delete`, {
+  fetchWithFallback(`${baseURL}/order/delete`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ order_id: orderId })
@@ -93,5 +117,6 @@ window.deleteOrder = deleteOrder;
 fetchOrders();
 setInterval(fetchOrders, 12000);
 </script>
+
 </body>
 </html>
