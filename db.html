@@ -30,12 +30,13 @@
       console.log("JS Error:", message, "at", source, "line", lineno, "col", colno, "error:", error);
     };
 
+    // แก้ตรงนี้ baseURL ไม่ต้องมี / ท้าย
     const defaultURL = "https://app.solvelysaid.space";
     const fallbackURL = "https://solvelysaidbn.onrender.com";
     let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
     let editedMenus = {};
 
-    // -- caching function --
+    // -- ฟังก์ชันเดิมทั้งหมด --
     function cacheMenus(menus) {
       console.log("cacheMenus:", menus);
       localStorage.setItem('menu_cache', JSON.stringify(menus));
@@ -174,7 +175,7 @@
       console.log("Form submit event เรียกใช้งานแล้ว");
     });
 
-    // ** ส่วนที่เปลี่ยนใหม่สำหรับอัปโหลดไฟล์ **
+    // *** จุดสำคัญ fetch ต้องไม่มี / ท้าย ***
     document.getElementById('addMenuForm').onsubmit = function(e) {
       alert("onsubmit handler ทำงาน");
       e.preventDefault();
@@ -193,6 +194,7 @@
 
         alert("กำลัง fetch ไปยัง backend: " + baseURL + "/menu/add");
 
+        // ตรงนี้! ไม่มี / ท้าย
         fetch(baseURL + "/menu/add", {
           method: "POST",
           body: formData
