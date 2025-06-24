@@ -17,6 +17,12 @@ h2, h3 {
   color: #190088;
 }
 
+/* เพิ่มระยะห่างบน-ล่างให้ h3 เพื่อให้ดูสมดุลหลังจากนำ block ออก */
+h3 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
 form {
   display: flex;
   flex-direction: column;
@@ -125,16 +131,9 @@ button:hover {
   color: #fff;
 }
 
-/* --- ส่วนที่เพิ่มใหม่ --- */
-.menu-admin-block {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px 0 rgba(25,0,136,0.07);
-  padding: 24px 16px 8px 16px;
-  margin-top: 14px;
-  margin-bottom: 10px;
-}
-/* --- จบส่วนที่เพิ่ม --- */
+/* --- ส่วนที่ลบออก --- */
+/* ลบ .menu-admin-block ที่ไม่จำเป็นออกทั้งหมด */
+/* --- จบส่วนที่ลบ --- */
 
 table {
   width: 100%;
@@ -161,13 +160,8 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
 
 /* Responsive for mobile */
 @media (max-width: 600px) {
-  /* ลบกล่อง card/tr เงาซ้อน! */
-  .menu-admin-block {
-    padding: 12px 2vw 4px 2vw;  /* ลดขอบขาวกล่องหลักลง */
-    margin: 8px 0 6px 0;
-    box-shadow: 0 1px 7px 0 rgba(25,0,136,0.06); /* อ่อนลง */
-    border-radius: 12px;
-  }
+  /* ลบ .menu-admin-block ในส่วน responsive ออก */
+  
   table, thead, tbody, tr, th, td {
     display: block !important;
     width: 100% !important;
@@ -179,7 +173,7 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     display: none !important;
   }
   tr {
-    margin-bottom: 0px !important;   /* เคย 10/18px ให้เหลือ 0 หรือ 2 */
+    margin-bottom: 0px !important;
     padding: 0 !important;
     background: none !important;
     box-shadow: none !important;
@@ -232,4 +226,3 @@ th:last-child, td:last-child { border-radius: 0 8px 8px 0; }
     object-fit: cover;
   }
 }
-
