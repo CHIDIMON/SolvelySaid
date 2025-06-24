@@ -30,40 +30,29 @@
       console.log("JS Error:", message, "at", source, "line", lineno, "col", colno, "error:", error);
     };
 
-    // แก้ตรงนี้ baseURL ไม่ต้องมี / ท้าย
     const defaultURL = "https://app.solvelysaid.space";
     const fallbackURL = "https://solvelysaidbn.onrender.com";
     let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
     let editedMenus = {};
 
-    // -- ฟังก์ชันเดิมทั้งหมด --
     function cacheMenus(menus) {
-      console.log("cacheMenus:", menus);
       localStorage.setItem('menu_cache', JSON.stringify(menus));
     }
     function getCachedMenus() {
       const cache = localStorage.getItem('menu_cache');
       if (cache) {
-        try { 
-          console.log("getCachedMenus: found cache");
-          return JSON.parse(cache); 
-        } catch (e) {
-          alert("Cache parse error: " + e.message);
-        }
+        try { return JSON.parse(cache); } catch (e) {}
       }
       return null;
     }
     function clearMenuCache() {
-      console.log("clearMenuCache");
       localStorage.removeItem('menu_cache');
     }
 
     function loadMenus(requestFresh = false) {
-      console.log("loadMenus called. requestFresh:", requestFresh);
       if (!requestFresh) {
         const cached = getCachedMenus();
         if (cached && Array.isArray(cached)) {
-          console.log("Rendering from cache...");
           renderMenus(cached);
           return;
         }
@@ -74,7 +63,6 @@
           return res.json();
         })
         .then(data => {
-          console.log("Menus from server:", data);
           if (data.menus) {
             cacheMenus(data.menus);
             renderMenus(data.menus);
@@ -97,14 +85,12 @@
     }
 
     function refreshMenus() {
-      console.log("refreshMenus called");
       clearMenuCache();
       location.reload();
     }
 
     function saveAllEdits() {
       const editedArray = Object.values(editedMenus);
-      console.log("saveAllEdits called:", editedArray);
       if (!editedArray.length) {
         alert('ไม่มีข้อมูลที่แก้ไข');
         return;
@@ -116,12 +102,11 @@
       })
       .then(res => res.json())
       .then(data => {
-        console.log("saveAllEdits done:", data);
         editedMenus = {};
         clearMenuCache();
         loadMenus(true);
       })
-      .catch((e) => alert("เกิดข้อผิดพลาดในการบันทึก: " + e.message));
+      .catch(() => alert("เกิดข้อผิดพลาดในการบันทึก"));
     }
 
     function handleEditMenu(id) {
@@ -129,11 +114,9 @@
       const price = document.getElementById('price_' + id).value;
       const description = document.getElementById('desc_' + id).value;
       editedMenus[id] = { id, name, price, description };
-      console.log("handleEditMenu: editedMenus =", editedMenus);
     }
 
     function renderMenus(menus) {
-      console.log("renderMenus called", menus);
       let html = '<table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
       menus.forEach(menu => {
         let imgUrl = baseURL + "/image/thumb/" + encodeURIComponent(menu.name);
@@ -175,7 +158,6 @@
       console.log("Form submit event เรียกใช้งานแล้ว");
     });
 
-    // *** จุดสำคัญ fetch ต้องไม่มี / ท้าย ***
     document.getElementById('addMenuForm').onsubmit = function(e) {
       alert("onsubmit handler ทำงาน");
       e.preventDefault();
@@ -192,15 +174,16 @@
           alert("ไม่ได้แนบรูป (หรือไม่ได้เลือก)");
         }
 
+        alert("formData entries: " + JSON.stringify([...formData.entries()]));
         alert("กำลัง fetch ไปยัง backend: " + baseURL + "/menu/add");
 
-        // ตรงนี้! ไม่มี / ท้าย
         fetch(baseURL + "/menu/add", {
           method: "POST",
           body: formData
         }).then(res => {
-          alert("fetch ส่งข้อมูลไปแล้ว รอ json กลับ");
-          return res.json()
+          alert("fetch ส่งข้อมูลไปแล้ว รอ json กลับ status=" + res.status);
+          if (!res.ok) return res.text().then(t => { throw new Error("HTTP " + res.status + ": " + t); });
+          return res.json();
         })
           .then((data) => {
             alert("เพิ่มเมนูเสร็จเรียบร้อย data=" + JSON.stringify(data));
@@ -219,7 +202,6 @@
     };
 
     function deleteMenu(id) {
-      alert("ต้องการลบเมนู id=" + id);
       if (!confirm("ลบเมนูนี้จริงหรือ?")) return;
       fetch(baseURL + "/menu/delete", {
         method: "POST",
@@ -227,7 +209,6 @@
         body: JSON.stringify({ id: id })
       }).then(res => res.json())
         .then((data) => {
-          alert("ลบเมนูเสร็จ data=" + JSON.stringify(data));
           clearMenuCache();
           loadMenus(true);
         })
@@ -239,7 +220,6 @@
     // เคลียร์ cache ครั้งแรก
     try {
       if (!sessionStorage.getItem('clearedOnce')) {
-        alert("clear cache ครั้งแรก");
         localStorage.clear();
         sessionStorage.clear();
         sessionStorage.setItem('clearedOnce', '1');
@@ -250,7 +230,6 @@
     }
 
     loadMenus();
-    alert("โหลดหน้าเสร็จ!");
   </script>
 </body>
 </html>
