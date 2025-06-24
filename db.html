@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>เมนูอาหาร (Admin)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="db.css">
 </head>
 <body>
@@ -104,30 +105,33 @@
       editedMenus[id] = { id, name, price, description };
     }
 
+    // *** สำคัญ! renderMenus แบบ floating card table ***
     function renderMenus(menus) {
-      let html = '<table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
+      let html = '<div class="container-table"><table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
       menus.forEach(menu => {
         let imgUrl = baseURL + "/image/thumb/" + encodeURIComponent(menu.name);
         html += `<tr>
           <td data-label="รูป">
-            <img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;" 
+            <img src="${imgUrl}" alt="img" style="width:55px; height:55px; object-fit:cover; border-radius:8px; border:1px solid #eee;"
               onerror="this.style.display='none';">
           </td>
           <td data-label="ชื่อ">
             <input value="${menu.name}" id="name_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
           </td>
           <td data-label="ราคา">
-            <input type="number" value="${menu.price}" id="price_${menu.id}" style="width:80px" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+            <input type="number" value="${menu.price}" id="price_${menu.id}" style="width:80px"
+              oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
           </td>
           <td data-label="รายละเอียด">
-            <input value="${menu.description || ''}" id="desc_${menu.id}" oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
+            <input value="${menu.description || ''}" id="desc_${menu.id}"
+              oninput="handleEditMenu('${menu.id}')" onchange="handleEditMenu('${menu.id}')">
           </td>
           <td data-label="จัดการ">
             <button class="delete-btn" onclick="deleteMenu('${menu.id}')" title="ลบ">delete</button>
           </td>
         </tr>`;
       });
-      html += "</table>";
+      html += "</table></div>";
       html += `<div style="text-align:center; margin-top:28px;">
         <button class="save-btn" onclick="saveAllEdits()">Save</button>
       </div>`;
