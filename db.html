@@ -22,6 +22,17 @@
     <div id="menuList"></div>
   </div>
 
+  <!-- วาง block นี้ไว้บนสุดของ script -->
+  <script>
+    // เคลียร์ cache + reload อัตโนมัติแค่ตอนแรกที่เข้า tab
+    if (!sessionStorage.getItem('clearedOnce')) {
+      localStorage.clear();        // ลบ cache localStorage ทั้งหมด
+      sessionStorage.clear();      // ลบ sessionStorage เก่าๆ
+      sessionStorage.setItem('clearedOnce', '1'); // mark ว่าเคลียร์แล้ว
+      location.reload();           // reload หน้า 1 รอบ
+    }
+  </script>
+  
   <script>
     const defaultURL = "https://app.solvelysaid.space";
     const fallbackURL = "https://solvelysaidbn.onrender.com";
@@ -82,7 +93,7 @@
       location.reload();
     }
 
-    // เปลี่ยนตรงนี้
+    // บันทึกการแก้ไขทั้งหมด
     function saveAllEdits() {
       const editedArray = Object.values(editedMenus);
       if (!editedArray.length) {
@@ -99,22 +110,19 @@
         editedMenus = {};
         clearMenuCache();
         loadMenus(true); // โหลดตารางใหม่ ไม่รีหน้า
-        // ถ้าอยากเช็ค data.success ให้เช็คตรงนี้
-        // if (data.success) { ... }
       })
       .catch(() => alert("เกิดข้อผิดพลาดในการบันทึก"));
     }
 
-    // ========== ต้องมี! ==========
+    // จัดการแก้ไขแต่ละแถว
     function handleEditMenu(id) {
       const name = document.getElementById('name_' + id).value;
       const price = document.getElementById('price_' + id).value;
       const description = document.getElementById('desc_' + id).value;
       editedMenus[id] = { id, name, price, description };
     }
-    // =============================
 
-    // แสดงรายการเมนู + ปุ่ม delete ต่อแถว + ปุ่ม save ล่างสุด
+    // แสดงรายการเมนู
     function renderMenus(menus) {
       let html = '<table><tr><th>รูป</th><th>ชื่อ</th><th>ราคา</th><th>รายละเอียด</th><th>จัดการ</th></tr>';
       menus.forEach(menu => {
@@ -169,6 +177,7 @@
         });
     }
 
+    // เริ่มโหลดเมนู
     loadMenus();
   </script>
 </body>
