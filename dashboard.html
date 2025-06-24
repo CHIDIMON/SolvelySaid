@@ -41,8 +41,8 @@ function renderOrders(orders) {
     let showDelete = order.status === "served";
     list.innerHTML += `
       <div class="order-card" data-id="${order.id}">
-        ${showFinish ? `<button class="finish-btn" onclick="finishOrder('${order.id}', this)">Click To Finish</button>` : ""}
-        ${showDelete ? `<button class="finish-btn" style="background:#212121;" onclick="deleteOrder('${order.id}', this)">Click To Delete</button>` : ""}
+        ${showFinish ? `<button class="finish-btn finish" onclick="finishOrder('${order.id}', this)">Click To Finish</button>` : ""}
+        ${showDelete ? `<button class="finish-btn delete" onclick="deleteOrder('${order.id}', this)">Click To Delete</button>` : ""}
         <div class="order-header">
           <span class="table-id">โต๊ะ ${order.table_number || "-"}</span>
           <span class="order-time">⏰ ${time}</span>

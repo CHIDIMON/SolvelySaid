@@ -60,18 +60,41 @@ h1 {
   font-size: 16px;
 }
 
-.done-btn {
-  padding: 10px 20px;
-  background-color: #2ecc71;
-  color: white;
-  border: none;
-  border-radius: 24px;
+.finish-btn {
+  padding: 9px 20px;
   font-size: 14px;
   font-weight: 600;
+  border: none;
+  border-radius: 20px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  margin-bottom: 8px;
+  margin-right: 8px;
+  transition: background 0.22s, color 0.22s, box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(34,139,34,0.05);
 }
 
-.done-btn:hover {
+.finish-btn.finish {
   background-color: #27ae60;
+  color: #fff;
 }
+.finish-btn.finish:hover:not(:disabled) {
+  background-color: #239b56;
+  box-shadow: 0 4px 12px rgba(39,174,96,0.16);
+}
+.finish-btn.delete {
+  background-color: #e74c3c;
+  color: #fff;
+}
+.finish-btn.delete:hover:not(:disabled) {
+  background-color: #c0392b;
+  box-shadow: 0 4px 12px rgba(231,76,60,0.16);
+}
+.finish-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Status text color */
+.status.waiting { color: orange; font-weight: bold; }
+.status.cooking { color: dodgerblue; font-weight: bold;}
+.status.served { color: green; font-weight: bold;}
