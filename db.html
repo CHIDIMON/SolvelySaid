@@ -18,9 +18,10 @@
 
   // ต้อง authenticated และ role เป็น admin เท่านั้น (admin = login ด้วย 0)
   if ((!isAuthenticated || role !== "admin") && !isLocal) {
-    window.location.href = "/";
+    window.location.href = "/login.html"; // <<-- เปลี่ยนแค่ตรงนี้
   }
 </script>
+
 
 
 
