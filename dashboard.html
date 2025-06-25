@@ -1,267 +1,202 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard - รายการอาหาร</title>
-  <link rel="stylesheet" href="dashboard.css">
-
-<script>
-  const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
-  const isLocal = [
-    'localhost', '127.0.0.1', '::1'
-  ].includes(window.location.hostname) ||
-    window.location.protocol === 'file:';
-
-  if (!isAuthenticated && !isLocal) {
-    // เพิ่ม next param ไป login.html
-    window.location.href = "/login.html?next=" + encodeURIComponent(window.location.pathname);
-  }
-</script>
-
-
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #f2f2f7;
-      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-      color: #333;
-      display: flex;
-      justify-content: center;
-    }
-    .dashboard-container {
-      width: 100%;
-      max-width: 600px;
-      padding: 24px;
-      margin: 20px;
-      background-color: #fff;
-      border-radius: 20px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    }
-    h1 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 24px;
-      text-align: center;
-      color: #2c3e50;
-    }
-    .order-list {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .order-card {
-      background-color: #fafafa;
-      border: 1px solid #ddd;
-      border-radius: 16px;
-      padding: 16px 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    }
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      font-size: 15px;
-      color: #555;
-    }
-    .order-items {
-      list-style: none;
-      padding-left: 0;
-      margin: 0 0 12px;
-    }
-    .order-items li {
-      padding: 4px 0;
-      border-bottom: 1px dashed #e0e0e0;
-      font-size: 16px;
-    }
-    .finish-btn {
-      padding: 9px 20px;
-      font-size: 14px;
-      font-weight: 600;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      margin-bottom: 8px;
-      margin-right: 8px;
-      transition: background 0.22s, color 0.22s, box-shadow 0.2s;
-      box-shadow: 0 2px 6px rgba(34,139,34,0.05);
-    }
-    .finish-btn.finish {
-      background-color: #27ae60;
-      color: #fff;
-    }
-    .finish-btn.finish:hover:not(:disabled) {
-      background-color: #239b56;
-      box-shadow: 0 4px 12px rgba(39,174,96,0.16);
-    }
-    .finish-btn.delete {
-      background-color: #e74c3c;
-      color: #fff;
-    }
-    .finish-btn.delete:hover:not(:disabled) {
-      background-color: #c0392b;
-      box-shadow: 0 4px 12px rgba(231,76,60,0.16);
-    }
-    .finish-btn:disabled {
-      opacity: 0.6;
-      cursor: default;
-    }
-    /* Status text color */
-    .status.waiting { color: orange; font-weight: bold; }
-    .status.cooking { color: dodgerblue; font-weight: bold;}
-    .status.served { color: green; font-weight: bold;}
-    .order-summary {
-      margin-bottom: 6px;
-      color: #2359a2;
-      font-size: 15px;
-      line-height: 1.7;
-      word-break: break-word;
-    }
-  </style>
+  <link rel="stylesheet" href="dashboard.css" />
 </head>
 <body>
   <div class="dashboard-container">
     <h1>📋 รายการอาหารลูกค้า</h1>
     <div class="order-list" id="orderList"></div>
   </div>
-<script>
-const defaultURL = "https://app.solvelysaid.space";
-const fallbackURL = "https://solvelysaidbn.onrender.com";
-let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
 
-function fetchWithFallback(url, opt) {
-  return fetch(url, opt)
-    .then(r => {
-      if (r.ok) {
-        sessionStorage.setItem("workingBaseURL", baseURL);
-        return r;
-      }
-      if (baseURL !== fallbackURL) {
-        baseURL = fallbackURL;
-        return fetch(fallbackURL + url.slice(defaultURL.length), opt)
-          .then(r2 => {
-            if (r2.ok) sessionStorage.setItem("workingBaseURL", baseURL);
-            return r2;
-          });
-      }
-      return r;
-    })
-    .catch(err => {
-      if (baseURL !== fallbackURL) {
-        baseURL = fallbackURL;
-        sessionStorage.setItem("workingBaseURL", baseURL);
-        return fetch(fallbackURL + url.slice(defaultURL.length), opt);
-      }
-      throw err;
-    });
-}
+  <!-- Login Modal -->
+  <div id="loginModal" aria-modal="true" role="dialog" tabindex="-1" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.18); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:13px; padding:30px 22px; min-width:300px; max-width:96vw; margin:auto;">
+      <h2 style="color:#190088; text-align:center; margin-bottom:16px;">เข้าสู่ระบบ</h2>
+      <form id="loginFormModal" autocomplete="off">
+        <input type="password" id="passwordModal" placeholder="Password" required autofocus style="width:100%; margin-bottom:12px; padding:8px; border-radius:7px; border:1px solid #dadada; font-size:1em;" />
+        <button type="submit" style="width:100%; background:#190088; color:#fff; padding:10px 0; border:none; border-radius:7px; font-size:1.1em; font-weight:bold;">เข้าสู่ระบบ</button>
+        <div id="errorModal" style="color:red; font-size:0.96em; text-align:center; margin-top:7px; min-height:20px;"></div>
+      </form>
+    </div>
+  </div>
 
-function statusText(st) {
-  if(st === "waiting") return "🟡 รอทำอาหาร";
-  if(st === "cooking") return "🔵 กำลังทำในครัว";
-  if(st === "served") return "✅ เสิร์ฟแล้ว";
-  return st || "-";
-}
-function statusClass(st) {
-  if(st === "waiting") return "status waiting";
-  if(st === "cooking") return "status cooking";
-  if(st === "served") return "status served";
-  return "status";
-}
-function mergeMenus(menus) {
-  const merged = {};
-  (menus || []).forEach(m => {
-    const key = m.name + (m.options ? JSON.stringify(m.options) : '');
-    if (!merged[key]) {
-      merged[key] = { ...m, qty: m.qty || 1 };
-    } else {
-      merged[key].qty += m.qty || 1;
+  <script>
+    const LOGIN_PASSWORD = "1"; // เปลี่ยนรหัสผ่านตามต้องการ
+
+    function checkAuthOrPopup() {
+      const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
+      const modal = document.getElementById('loginModal');
+      if (!isAuthenticated) {
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+      } else {
+        modal.style.display = "none";
+        document.body.style.overflow = "";
+        loadOrders();
+      }
     }
-  });
-  return Object.values(merged);
-}
-function formatSummary(summary) {
-  if (!summary) return "";
-  return summary
-    .replace(/\s*\*\s*/g, "<br>")           // * => <br>
-    .replace(/(\d+\.\s*)/g, "<br>$1")       // 1. 2. ... => <br>
-    .replace(/^<br>/, "");                  // ลบ <br> หน้าสุด
-}
 
-function renderOrders(orders) {
-  const list = document.getElementById('orderList');
-  list.innerHTML = "";
-  if(!orders || !orders.length) {
-    list.innerHTML = "<div style='color:#888;text-align:center;padding:30px;'>ไม่มีออเดอร์</div>";
-    return;
-  }
-  orders.forEach(order => {
-    // <<<<< ส่วนที่ปรับให้เวลายึด timezone ประเทศไทย >>>>>
-    let time = order.timestamp
-      ? new Date(order.timestamp).toLocaleTimeString('th-TH', {
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZone: 'Asia/Bangkok'
+    document.getElementById("loginFormModal").onsubmit = function(e) {
+      e.preventDefault();
+      const password = document.getElementById('passwordModal').value.trim();
+      if (password === LOGIN_PASSWORD) {
+        sessionStorage.setItem("authenticated", "true");
+        document.getElementById('errorModal').textContent = "";
+        document.getElementById('loginModal').style.display = "none";
+        document.body.style.overflow = "";
+        loadOrders();
+      } else {
+        document.getElementById('errorModal').textContent = "รหัสผ่านไม่ถูกต้อง";
+      }
+    };
+
+    const defaultURL = "https://app.solvelysaid.space";
+    const fallbackURL = "https://solvelysaidbn.onrender.com";
+    let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
+
+    function fetchWithFallback(url, opt) {
+      return fetch(url, opt)
+        .then(r => {
+          if (r.ok) {
+            sessionStorage.setItem("workingBaseURL", baseURL);
+            return r;
+          }
+          if (baseURL !== fallbackURL) {
+            baseURL = fallbackURL;
+            return fetch(fallbackURL + url.slice(defaultURL.length), opt)
+              .then(r2 => {
+                if (r2.ok) sessionStorage.setItem("workingBaseURL", baseURL);
+                return r2;
+              });
+          }
+          return r;
         })
-      : "-";
-    // <<<<< END >>>>>
-    let mergedMenus = mergeMenus(order.menus || []);
-    let items = mergedMenus.map((m, i) => `<li>${i+1}. ${m.name}${m.qty > 1 ? ` x${m.qty}` : ""}</li>`).join('');
-    let showFinish = order.status !== "served";
-    let showDelete = order.status === "served";
-    list.innerHTML += `
-      <div class="order-card" data-id="${order.id}">
-        ${showFinish ? `<button class="finish-btn finish" onclick="finishOrder('${order.id}', this)">Click To Finish</button>` : ""}
-        ${showDelete ? `<button class="finish-btn delete" onclick="deleteOrder('${order.id}', this)">Click To Delete</button>` : ""}
-        <div class="order-header">
-          <span class="table-id">โต๊ะ ${order.table_number || "-"}</span>
-          <span class="order-time">⏰ ${time}</span>
-        </div>
-        ${
-          order.summary
-            ? `<div class="order-summary">${formatSummary(order.summary)}</div>`
-            : `<ul class="order-items">${items}</ul>`
-        }
-        <div class="${statusClass(order.status)}">${statusText(order.status)}</div>
-      </div>`;
-  });
-}
+        .catch(err => {
+          if (baseURL !== fallbackURL) {
+            baseURL = fallbackURL;
+            sessionStorage.setItem("workingBaseURL", baseURL);
+            return fetch(fallbackURL + url.slice(defaultURL.length), opt);
+          }
+          throw err;
+        });
+    }
 
-function fetchOrders() {
-  fetchWithFallback(`${baseURL}/orders`)
-    .then(r => r.json())
-    .then(data => renderOrders(data.orders))
-    .catch(() => {
-      document.getElementById('orderList').innerHTML = "<div style='color:#888;text-align:center;padding:30px;'>เกิดข้อผิดพลาดเชื่อมต่อ</div>";
-    });
-}
-function finishOrder(orderId, btn) {
-  btn.disabled = true;
-  btn.textContent = "เสร็จสิ้น";
-  fetchWithFallback(`${baseURL}/order/status`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ order_id: orderId, status: "served" })
-  }).then(() => {
-    setTimeout(fetchOrders, 400);
-  });
-}
-function deleteOrder(orderId, btn) {
-  btn.disabled = true;
-  btn.textContent = "ลบแล้ว";
-  fetchWithFallback(`${baseURL}/order/delete`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ order_id: orderId })
-  }).then(() => {
-    setTimeout(fetchOrders, 400);
-  });
-}
-window.finishOrder = finishOrder;
-window.deleteOrder = deleteOrder;
-fetchOrders();
-setInterval(fetchOrders, 12000);
-</script>
+    function statusText(st) {
+      if(st === "waiting") return "🟡 รอทำอาหาร";
+      if(st === "cooking") return "🔵 กำลังทำในครัว";
+      if(st === "served") return "✅ เสิร์ฟแล้ว";
+      return st || "-";
+    }
+    function statusClass(st) {
+      if(st === "waiting") return "status waiting";
+      if(st === "cooking") return "status cooking";
+      if(st === "served") return "status served";
+      return "status";
+    }
+    function mergeMenus(menus) {
+      const merged = {};
+      (menus || []).forEach(m => {
+        const key = m.name + (m.options ? JSON.stringify(m.options) : '');
+        if (!merged[key]) {
+          merged[key] = { ...m, qty: m.qty || 1 };
+        } else {
+          merged[key].qty += m.qty || 1;
+        }
+      });
+      return Object.values(merged);
+    }
+    function formatSummary(summary) {
+      if (!summary) return "";
+      return summary
+        .replace(/\s*\*\s*/g, "<br>")
+        .replace(/(\d+\.\s*)/g, "<br>$1")
+        .replace(/^<br>/, "");
+    }
+
+    function renderOrders(orders) {
+      const list = document.getElementById('orderList');
+      list.innerHTML = "";
+      if(!orders || !orders.length) {
+        list.innerHTML = "<div style='color:#888;text-align:center;padding:30px;'>ไม่มีออเดอร์</div>";
+        return;
+      }
+      orders.forEach(order => {
+        let time = order.timestamp
+          ? new Date(order.timestamp).toLocaleTimeString('th-TH', {
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'Asia/Bangkok'
+            })
+          : "-";
+        let mergedMenus = mergeMenus(order.menus || []);
+        let items = mergedMenus.map((m, i) => `<li>${i+1}. ${m.name}${m.qty > 1 ? ` x${m.qty}` : ""}</li>`).join('');
+        let showFinish = order.status !== "served";
+        let showDelete = order.status === "served";
+        list.innerHTML += `
+          <div class="order-card" data-id="${order.id}">
+            ${showFinish ? `<button class="finish-btn finish" onclick="finishOrder('${order.id}', this)">Click To Finish</button>` : ""}
+            ${showDelete ? `<button class="finish-btn delete" onclick="deleteOrder('${order.id}', this)">Click To Delete</button>` : ""}
+            <div class="order-header">
+              <span class="table-id">โต๊ะ ${order.table_number || "-"}</span>
+              <span class="order-time">⏰ ${time}</span>
+            </div>
+            ${
+              order.summary
+                ? `<div class="order-summary">${formatSummary(order.summary)}</div>`
+                : `<ul class="order-items">${items}</ul>`
+            }
+            <div class="${statusClass(order.status)}">${statusText(order.status)}</div>
+          </div>`;
+      });
+    }
+
+    function fetchOrders() {
+      fetchWithFallback(`${baseURL}/orders`)
+        .then(r => r.json())
+        .then(data => renderOrders(data.orders))
+        .catch(() => {
+          document.getElementById('orderList').innerHTML = "<div style='color:#888;text-align:center;padding:30px;'>เกิดข้อผิดพลาดเชื่อมต่อ</div>";
+        });
+    }
+
+    function loadOrders() {
+      if (sessionStorage.getItem("authenticated") === "true") {
+        fetchOrders();
+        setInterval(fetchOrders, 12000);
+      }
+    }
+
+    function finishOrder(orderId, btn) {
+      btn.disabled = true;
+      btn.textContent = "เสร็จสิ้น";
+      fetchWithFallback(`${baseURL}/order/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: orderId, status: "served" })
+      }).then(() => {
+        setTimeout(fetchOrders, 400);
+      });
+    }
+    function deleteOrder(orderId, btn) {
+      btn.disabled = true;
+      btn.textContent = "ลบแล้ว";
+      fetchWithFallback(`${baseURL}/order/delete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: orderId })
+      }).then(() => {
+        setTimeout(fetchOrders, 400);
+      });
+    }
+    window.finishOrder = finishOrder;
+    window.deleteOrder = deleteOrder;
+
+    // ตรวจสอบ login ตอนโหลดหน้า
+    checkAuthOrPopup();
+  </script>
 </body>
 </html>
