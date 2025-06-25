@@ -16,7 +16,7 @@ const defaultURL = "https://app.solvelysaid.space";
 const fallbackURL = "https://solvelysaidbn.onrender.com";
 let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
 
-// fetch fallback ตามเดิม
+// Helper function: fetch พร้อมสลับ fallback
 function fetchWithFallback(url, opt) {
   return fetch(url, opt)
     .then(r => {
@@ -57,11 +57,10 @@ function statusClass(st) {
   return "status";
 }
 
-// >>>>> เพิ่มฟังก์ชันนี้ <<<<<
+// รวมเมนูซ้ำ
 function mergeMenus(menus) {
   const merged = {};
   (menus || []).forEach(m => {
-    // กรณีมี options ในเมนู ให้ key แยกจากชื่อ+option (ถ้ามี)
     const key = m.name + (m.options ? JSON.stringify(m.options) : '');
     if (!merged[key]) {
       merged[key] = { ...m, qty: m.qty || 1 };
@@ -70,6 +69,15 @@ function mergeMenus(menus) {
     }
   });
   return Object.values(merged);
+}
+
+// ฟอร์แมต summary แยกบรรทัด
+function formatSummary(summary) {
+  if (!summary) return "";
+  return summary
+    .replace(/\s*\*\s*/g, "<br>")           // * => <br>
+    .replace(/(\d+\.\s*)/g, "<br>$1")       // 1. 2. ... => <br>
+    .replace(/^<br>/, "");                  // ลบ <br> หน้าสุด
 }
 
 function renderOrders(orders) {
@@ -81,7 +89,6 @@ function renderOrders(orders) {
   }
   orders.forEach(order => {
     let time = order.timestamp ? new Date(order.timestamp).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : "-";
-    // >>> ใช้ mergeMenus ที่เพิ่ม <<<
     let mergedMenus = mergeMenus(order.menus || []);
     let items = mergedMenus.map((m, i) => `<li>${i+1}. ${m.name}${m.qty > 1 ? ` x${m.qty}` : ""}</li>`).join('');
     let showFinish = order.status !== "served";
@@ -94,7 +101,7 @@ function renderOrders(orders) {
           <span class="table-id">โต๊ะ ${order.table_number || "-"}</span>
           <span class="order-time">⏰ ${time}</span>
         </div>
-        ${order.summary ? `<div class="order-summary" style="margin-bottom:6px;color:#2359a2;">${order.summary}</div>` : ""}
+        ${order.summary ? `<div class="order-summary" style="margin-bottom:6px;color:#2359a2;">${formatSummary(order.summary)}</div>` : ""}
         <ul class="order-items">${items}</ul>
         <div class="${statusClass(order.status)}">${statusText(order.status)}</div>
       </div>`;
