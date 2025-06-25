@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | solvelysaid.space</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: 'Orbitron', Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .login-box {
+      background: #191b22;
+      border-radius: 18px;
+      box-shadow: 0 4px 28px 0 rgba(0, 229, 255, 0.08);
+      padding: 32px 24px 24px 24px;
+      max-width: 350px;
+      width: 100%;
+      text-align: center;
+    }
+    h2 {
+      color: #00e5ff;
+      margin-bottom: 20px;
+      font-size: 2rem;
+      letter-spacing: 1.5px;
+    }
+    input, select, button {
+      font-family: inherit;
+      margin-bottom: 14px;
+      width: 100%;
+      padding: 12px 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+    input, select {
+      background: #22232b;
+      color: #fff;
+      border: 1px solid #2c2e39;
+      margin-bottom: 14px;
+    }
+    button {
+      background: linear-gradient(90deg, #00e5ff, #2dfaec);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, transform 0.13s;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #14b8c9, #2dfaec);
+      transform: scale(1.03);
+    }
+    .error {
+      color: #ff6464;
+      margin-bottom: 14px;
+      display: none;
+    }
+    @media (max-width: 480px) {
+      .login-box { padding: 22px 10px; }
+      h2 { font-size: 1.2rem; }
+      input, select, button { font-size: 0.98rem; }
+    }
+  </style>
+</head>
+<body>
+  <form class="login-box" id="loginForm">
+    <h2>เข้าสู่ระบบ</h2>
+    <div class="error" id="loginError">รหัสผ่านหรือสิทธิ์ไม่ถูกต้อง</div>
+    <select id="role" required>
+      <option value="user">ผู้ใช้งานทั่วไป</option>
+      <option value="admin">ผู้ดูแล (Database)</option>
+    </select>
+    <input type="password" id="password" placeholder="กรอกรหัสผ่าน" required autocomplete="current-password" />
+    <button type="submit">LOGIN</button>
+  </form>
+  <script>
+    document.getElementById("loginForm").onsubmit = function(e) {
+      e.preventDefault();
+      document.getElementById("loginError").style.display = "none";
+      const password = document.getElementById("password").value;
+      const role = document.getElementById("role").value;
+
+      fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: role, password: password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          sessionStorage.setItem("authenticated", "true");
+          sessionStorage.setItem("role", role);
+          if (role === "admin") {
+            window.location.href = "/db.html";
+          } else {
+            window.location.href = "/main.html";
+          }
+        } else {
+          document.getElementById("loginError").style.display = "block";
+        }
+      })
+      .catch(() => {
+        document.getElementById("loginError").style.display = "block";
+      });
+    };
+  </script>
+</body>
+</html>
