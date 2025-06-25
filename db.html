@@ -5,6 +5,24 @@
   <title>เมนูอาหาร (Admin)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="db.css">
+
+  <script>
+  const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
+  const role = sessionStorage.getItem("role");  // <-- ต้องเป็น 'admin' เท่านั้น
+  const isLocal = [
+    'localhost',
+    '127.0.0.1',
+    '::1'
+  ].includes(window.location.hostname) ||
+  window.location.protocol === 'file:';
+
+  // ต้อง authenticated และ role เป็น admin เท่านั้น
+  if ((!isAuthenticated || role !== "admin") && !isLocal) {
+    window.location.href = "/";
+  }
+</script>
+
+
 </head>
 <body>
   <div class="container">
