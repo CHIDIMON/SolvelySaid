@@ -241,6 +241,44 @@ function toggleFlags() {
 
 
 <script>
+
+  let baseURL = sessionStorage.getItem("workingBaseURL") || "https://app.solvelysaid.space";
+const defaultURL = "https://app.solvelysaid.space";
+const fallbackURL = "https://solvelysaidbn.onrender.com";
+
+async function checkServer(url) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3000);
+  try {
+    const res = await fetch(new URL("/ping", url), {
+      method: "GET",
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      sessionStorage.setItem("workingBaseURL", url);
+      baseURL = url;
+      console.log("✅ Server OK at", url);
+      return true;
+    }
+  } catch (err) {
+    console.error("❌ Ping failed:", err.message);
+  }
+  clearTimeout(timeoutId);
+  return false;
+}
+
+(async () => {
+  const ok = await checkServer(baseURL);
+  if (!ok) {
+    const fallbackOk = await checkServer(fallbackURL);
+    if (!fallbackOk) {
+      alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ใดๆ ได้ กรุณาตรวจสอบเครือข่าย");
+    }
+  }
+})();
+
+
 const recordBtn = document.getElementById("recordBtn");
 const micIcon = document.getElementById("micIcon");
 const recordStatus = document.getElementById("recordStatus");
