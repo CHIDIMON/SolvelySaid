@@ -182,7 +182,15 @@ function renderOrders(orders) {
     return;
   }
   orders.forEach(order => {
-    let time = order.timestamp ? new Date(order.timestamp).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : "-";
+    // <<<<< ส่วนที่ปรับให้เวลายึด timezone ประเทศไทย >>>>>
+    let time = order.timestamp
+      ? new Date(order.timestamp).toLocaleTimeString('th-TH', {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Asia/Bangkok'
+        })
+      : "-";
+    // <<<<< END >>>>>
     let mergedMenus = mergeMenus(order.menus || []);
     let items = mergedMenus.map((m, i) => `<li>${i+1}. ${m.name}${m.qty > 1 ? ` x${m.qty}` : ""}</li>`).join('');
     let showFinish = order.status !== "served";
