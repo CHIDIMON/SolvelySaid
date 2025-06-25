@@ -7,20 +7,18 @@
   <link rel="stylesheet" href="dashboard.css">
 
   <script>
-  const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
-  const role = sessionStorage.getItem("role");  // <-- ต้องเป็น 'admin' เท่านั้น
-  const isLocal = [
-    'localhost',
-    '127.0.0.1',
-    '::1'
-  ].includes(window.location.hostname) ||
-  window.location.protocol === 'file:';
+    const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
+    const isLocal = [
+      'localhost',
+      '127.0.0.1',
+      '::1'
+    ].includes(window.location.hostname) ||
+    window.location.protocol === 'file:';
 
-  // ต้อง authenticated และ role เป็น admin เท่านั้น
-  if ((!isAuthenticated || role !== "admin") && !isLocal) {
-    window.location.href = "/";
-  }
-</script>
+    if (!isAuthenticated && !isLocal) {
+      window.location.href = "/";
+    }
+  </script>
 
 
   <style>

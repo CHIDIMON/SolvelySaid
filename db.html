@@ -6,21 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="db.css">
 
-<script>
-  const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
-  const role = sessionStorage.getItem("role");  // ต้องเป็น 'admin'
-  const isLocal = [
-    'localhost',
-    '127.0.0.1',
-    '::1'
-  ].includes(window.location.hostname) ||
-  window.location.protocol === 'file:';
+  <script>
+    const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
+    const isLocal = [
+      'localhost',
+      '127.0.0.1',
+      '::1'
+    ].includes(window.location.hostname) ||
+    window.location.protocol === 'file:';
 
-  // ต้อง authenticated และ role เป็น admin เท่านั้น (admin = login ด้วย 0)
-  if ((!isAuthenticated || role !== "admin") && !isLocal) {
-    window.location.href = "/login.html"; // <<-- เปลี่ยนแค่ตรงนี้
-  }
-</script>
+    if (!isAuthenticated && !isLocal) {
+      window.location.href = "/";
+    }
+  </script>
 
 
 

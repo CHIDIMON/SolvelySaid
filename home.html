@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="home.css" />
   <script>
     const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
-    const role = sessionStorage.getItem("role");  // <-- เพิ่มบรรทัดนี้
     const isLocal = [
       'localhost',
       '127.0.0.1',
@@ -16,8 +15,7 @@
     ].includes(window.location.hostname) ||
     window.location.protocol === 'file:';
 
-    // ต้อง authenticated และ role เป็น user เท่านั้น
-    if ((!isAuthenticated || role !== "user") && !isLocal) {
+    if (!isAuthenticated && !isLocal) {
       window.location.href = "/";
     }
   </script>
