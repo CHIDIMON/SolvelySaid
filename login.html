@@ -85,13 +85,46 @@
     <button type="submit">LOGIN</button>
   </form>
   <script>
+    // ฟังก์ชัน fallback API
+    const defaultURL = "https://app.solvelysaid.space";
+    const fallbackURL = "https://solvelysaidbn.onrender.com";
+    let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
+
+    function fetchWithFallback(url, opt) {
+      return fetch(url, opt)
+        .then(r => {
+          if (r.ok) {
+            sessionStorage.setItem("workingBaseURL", baseURL);
+            return r;
+          }
+          if (baseURL !== fallbackURL) {
+            baseURL = fallbackURL;
+            return fetch(fallbackURL + url.slice(defaultURL.length), opt)
+              .then(r2 => {
+                if (r2.ok) sessionStorage.setItem("workingBaseURL", baseURL);
+                return r2;
+              });
+          }
+          return r;
+        })
+        .catch(err => {
+          if (baseURL !== fallbackURL) {
+            baseURL = fallbackURL;
+            sessionStorage.setItem("workingBaseURL", baseURL);
+            return fetch(fallbackURL + url.slice(defaultURL.length), opt);
+          }
+          throw err;
+        });
+    }
+
+    // ฟอร์ม login
     document.getElementById("loginForm").onsubmit = function(e) {
       e.preventDefault();
       document.getElementById("loginError").style.display = "none";
       const password = document.getElementById("password").value;
       const role = document.getElementById("role").value;
 
-      fetch("/login", {
+      fetchWithFallback(baseURL + "/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: role, password: password })
