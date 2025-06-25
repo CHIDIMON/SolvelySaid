@@ -16,7 +16,7 @@ const defaultURL = "https://app.solvelysaid.space";
 const fallbackURL = "https://solvelysaidbn.onrender.com";
 let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
 
-// Helper function: fetch พร้อมสลับ fallback ทันทีถ้า network error หรือ status error
+// fetch fallback ตามเดิม
 function fetchWithFallback(url, opt) {
   return fetch(url, opt)
     .then(r => {
@@ -24,7 +24,6 @@ function fetchWithFallback(url, opt) {
         sessionStorage.setItem("workingBaseURL", baseURL);
         return r;
       }
-      // ถ้า status error เช่น 404/500/530 ให้ลอง fallbackURL
       if (baseURL !== fallbackURL) {
         baseURL = fallbackURL;
         return fetch(fallbackURL + url.slice(defaultURL.length), opt)
@@ -36,7 +35,6 @@ function fetchWithFallback(url, opt) {
       return r;
     })
     .catch(err => {
-      // ถ้าเป็น network error (server ล่ม, ไม่เจอ) ให้เปลี่ยนเป็น fallbackURL ทันที
       if (baseURL !== fallbackURL) {
         baseURL = fallbackURL;
         sessionStorage.setItem("workingBaseURL", baseURL);
@@ -59,6 +57,21 @@ function statusClass(st) {
   return "status";
 }
 
+// >>>>> เพิ่มฟังก์ชันนี้ <<<<<
+function mergeMenus(menus) {
+  const merged = {};
+  (menus || []).forEach(m => {
+    // กรณีมี options ในเมนู ให้ key แยกจากชื่อ+option (ถ้ามี)
+    const key = m.name + (m.options ? JSON.stringify(m.options) : '');
+    if (!merged[key]) {
+      merged[key] = { ...m, qty: m.qty || 1 };
+    } else {
+      merged[key].qty += m.qty || 1;
+    }
+  });
+  return Object.values(merged);
+}
+
 function renderOrders(orders) {
   const list = document.getElementById('orderList');
   list.innerHTML = "";
@@ -68,7 +81,9 @@ function renderOrders(orders) {
   }
   orders.forEach(order => {
     let time = order.timestamp ? new Date(order.timestamp).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : "-";
-    let items = (order.menus || []).map((m,i) => `<li>${i+1}. ${m.name}${m.qty?` x${m.qty}`:""}</li>`).join('');
+    // >>> ใช้ mergeMenus ที่เพิ่ม <<<
+    let mergedMenus = mergeMenus(order.menus || []);
+    let items = mergedMenus.map((m, i) => `<li>${i+1}. ${m.name}${m.qty > 1 ? ` x${m.qty}` : ""}</li>`).join('');
     let showFinish = order.status !== "served";
     let showDelete = order.status === "served";
     list.innerHTML += `
