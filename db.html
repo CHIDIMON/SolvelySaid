@@ -5,23 +5,6 @@
   <title>เมนูอาหาร (Admin)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="db.css">
-
-<script>
-  const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
-  const isLocal = [
-    'localhost', '127.0.0.1', '::1'
-  ].includes(window.location.hostname) ||
-    window.location.protocol === 'file:';
-
-  if (!isAuthenticated && !isLocal) {
-    // เพิ่ม next param ไป login.html
-    window.location.href = "/login.html?next=" + encodeURIComponent(window.location.pathname);
-  }
-</script>
-
-
-
-
 </head>
 <body>
   <div class="container">
@@ -40,7 +23,68 @@
     </h3>
     <div id="menuList"></div>
   </div>
+
+  <!-- ============ LOGIN MODAL POPUP ============ -->
+  <div id="loginModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.18); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:13px; box-shadow:0 3px 16px #3333; padding:30px 22px; min-width:300px; max-width:96vw; margin:auto;">
+      <h2 style="color:#190088; text-align:center;">เข้าสู่ระบบ</h2>
+      <form id="loginFormModal" autocomplete="off">
+        <input type="text" id="usernameModal" placeholder="Username" required style="width:100%;margin-bottom:12px;padding:8px;border-radius:7px;border:1px solid #dadada;">
+        <input type="password" id="passwordModal" placeholder="Password" required style="width:100%;margin-bottom:12px;padding:8px;border-radius:7px;border:1px solid #dadada;">
+        <button type="submit" style="width:100%;background:#190088;color:#fff;padding:10px 0;border:none;border-radius:7px;font-size:1.1em;font-weight:bold;">เข้าสู่ระบบ</button>
+        <div id="errorModal" style="color:red; font-size:0.96em; text-align:center; margin-top:7px;"></div>
+      </form>
+    </div>
+  </div>
+  <!-- ============ END LOGIN MODAL POPUP ============ -->
+
 <script>
+const LOGIN_PASSWORD = "1"; // <--- เอาตรงนี้ไปผูกกับ env backend (หรือจะ fetch ก็ได้)
+
+document.getElementById("loginFormModal").onsubmit = function(e) {
+  e.preventDefault();
+  // const username = document.getElementById('usernameModal').value.trim(); // ไม่ต้องเช็คแล้ว
+  const password = document.getElementById('passwordModal').value.trim();
+
+  if (password === LOGIN_PASSWORD) {
+    sessionStorage.setItem("authenticated", "true");
+    sessionStorage.setItem("role", "admin"); // หรือ "user"
+    document.getElementById('loginModal').style.display = "none";
+    document.body.style.overflow = "";
+    document.getElementById('errorModal').textContent = "";
+    if (typeof loadMenus === 'function') loadMenus(true);
+  } else {
+    document.getElementById('errorModal').textContent = "รหัสผ่านไม่ถูกต้อง";
+    return;
+  }
+};
+
+document.getElementById("loginFormModal").onsubmit = function(e) {
+  e.preventDefault();
+  const username = document.getElementById('usernameModal').value.trim();
+  const password = document.getElementById('passwordModal').value.trim();
+  let role = null;
+  if (username === ADMIN_USER && password === ADMIN_PASS) {
+    role = "admin";
+  } else if (username === USER_USER && password === USER_PASS) {
+    role = "user";
+  } else {
+    document.getElementById('errorModal').textContent = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
+    return;
+  }
+  // login สำเร็จ
+  sessionStorage.setItem("authenticated", "true");
+  sessionStorage.setItem("role", role);
+  document.getElementById('loginModal').style.display = "none";
+  document.body.style.overflow = "";
+  document.getElementById('errorModal').textContent = "";
+  // โหลดข้อมูลใหม่หลัง login
+  if (typeof loadMenus === 'function') loadMenus(true);
+};
+// เรียกเมื่อโหลดหน้า
+checkAuthOrPopup();
+
+// ==== ส่วนเดิมของระบบเมนู (ไม่กระทบ) ====
 const defaultURL = "https://app.solvelysaid.space";
 const fallbackURL = "https://solvelysaidbn.onrender.com";
 let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
