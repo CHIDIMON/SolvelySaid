@@ -5,6 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard - รายการอาหาร</title>
   <link rel="stylesheet" href="dashboard.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f2f2f7;
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+      color: #333;
+      display: flex;
+      justify-content: center;
+    }
+    .dashboard-container {
+      width: 100%;
+      max-width: 600px;
+      padding: 24px;
+      margin: 20px;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      text-align: center;
+      color: #2c3e50;
+    }
+    .order-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .order-card {
+      background-color: #fafafa;
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 15px;
+      color: #555;
+    }
+    .order-items {
+      list-style: none;
+      padding-left: 0;
+      margin: 0 0 12px;
+    }
+    .order-items li {
+      padding: 4px 0;
+      border-bottom: 1px dashed #e0e0e0;
+      font-size: 16px;
+    }
+    .finish-btn {
+      padding: 9px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      margin-right: 8px;
+      transition: background 0.22s, color 0.22s, box-shadow 0.2s;
+      box-shadow: 0 2px 6px rgba(34,139,34,0.05);
+    }
+    .finish-btn.finish {
+      background-color: #27ae60;
+      color: #fff;
+    }
+    .finish-btn.finish:hover:not(:disabled) {
+      background-color: #239b56;
+      box-shadow: 0 4px 12px rgba(39,174,96,0.16);
+    }
+    .finish-btn.delete {
+      background-color: #e74c3c;
+      color: #fff;
+    }
+    .finish-btn.delete:hover:not(:disabled) {
+      background-color: #c0392b;
+      box-shadow: 0 4px 12px rgba(231,76,60,0.16);
+    }
+    .finish-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    /* Status text color */
+    .status.waiting { color: orange; font-weight: bold; }
+    .status.cooking { color: dodgerblue; font-weight: bold;}
+    .status.served { color: green; font-weight: bold;}
+    .order-summary {
+      margin-bottom: 6px;
+      color: #2359a2;
+      font-size: 15px;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+  </style>
 </head>
 <body>
   <div class="dashboard-container">
@@ -16,7 +115,6 @@ const defaultURL = "https://app.solvelysaid.space";
 const fallbackURL = "https://solvelysaidbn.onrender.com";
 let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
 
-// Helper function: fetch พร้อมสลับ fallback
 function fetchWithFallback(url, opt) {
   return fetch(url, opt)
     .then(r => {
@@ -56,8 +154,6 @@ function statusClass(st) {
   if(st === "served") return "status served";
   return "status";
 }
-
-// รวมเมนูซ้ำ
 function mergeMenus(menus) {
   const merged = {};
   (menus || []).forEach(m => {
@@ -70,8 +166,6 @@ function mergeMenus(menus) {
   });
   return Object.values(merged);
 }
-
-// ฟอร์แมต summary แยกบรรทัด
 function formatSummary(summary) {
   if (!summary) return "";
   return summary
@@ -101,8 +195,11 @@ function renderOrders(orders) {
           <span class="table-id">โต๊ะ ${order.table_number || "-"}</span>
           <span class="order-time">⏰ ${time}</span>
         </div>
-        ${order.summary ? `<div class="order-summary" style="margin-bottom:6px;color:#2359a2;">${formatSummary(order.summary)}</div>` : ""}
-        <ul class="order-items">${items}</ul>
+        ${
+          order.summary
+            ? `<div class="order-summary">${formatSummary(order.summary)}</div>`
+            : `<ul class="order-items">${items}</ul>`
+        }
         <div class="${statusClass(order.status)}">${statusText(order.status)}</div>
       </div>`;
   });
@@ -116,7 +213,6 @@ function fetchOrders() {
       document.getElementById('orderList').innerHTML = "<div style='color:#888;text-align:center;padding:30px;'>เกิดข้อผิดพลาดเชื่อมต่อ</div>";
     });
 }
-
 function finishOrder(orderId, btn) {
   btn.disabled = true;
   btn.textContent = "เสร็จสิ้น";
@@ -128,7 +224,6 @@ function finishOrder(orderId, btn) {
     setTimeout(fetchOrders, 400);
   });
 }
-
 function deleteOrder(orderId, btn) {
   btn.disabled = true;
   btn.textContent = "ลบแล้ว";
@@ -140,7 +235,6 @@ function deleteOrder(orderId, btn) {
     setTimeout(fetchOrders, 400);
   });
 }
-
 window.finishOrder = finishOrder;
 window.deleteOrder = deleteOrder;
 fetchOrders();
