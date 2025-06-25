@@ -18,32 +18,79 @@ h2, h3 {
   text-align: center;
   color: #190088;
 }
-form {
+
+/* ==== Minimal Add Menu Form ==== */
+#addMenuForm {
+  max-width: 330px;
+  margin: 0 auto 18px auto !important;
+  background: #f8f9fb;
+  border-radius: 18px;
+  box-shadow: 0 3px 18px 0 rgba(25,0,136,0.06);
+  padding: 18px 18px 13px 18px !important;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-input, textarea {
-  border: 1.1px solid #dadada;
-  border-radius: 7px;
-  padding: 7px 8px;
-  font-size: 1em;
-  background: #f7f7fb;
-}
-input[type="number"] { width: 76px; }
-button {
-  background: #190088;
-  color: #fff;
+  gap: 8px;
   border: none;
-  border-radius: 8px;
-  padding: 7px 0;
-  margin-top: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
 }
-button:hover { background: #4d2eee; }
+
+#addMenuForm input,
+#addMenuForm textarea {
+  font-size: 0.99em;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid #dadada;
+  background: #f6f7fb;
+  margin: 0;
+  transition: box-shadow 0.12s, border 0.15s;
+}
+
+#addMenuForm input:focus,
+#addMenuForm textarea:focus {
+  border-color: #b2a3f9;
+  box-shadow: 0 0 0 1.5px #c5bdfa;
+  background: #fff;
+  outline: none;
+}
+
+#addMenuForm input[type="number"] {
+  width: 90px;
+  min-width: 60px;
+  max-width: 110px;
+  font-size: 1em;
+}
+
+#addMenuForm input[type="file"] {
+  padding: 5px 0 0 0;
+  background: none;
+  border: none;
+  font-size: 0.97em;
+}
+
+#addMenuForm button[type="submit"] {
+  margin-top: 10px;
+  font-size: 1.01em;
+  padding: 7px 0;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #4d2eee 40%, #190088 100%);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 1.5px 6px rgba(25,0,136,0.09);
+  letter-spacing: 0.01em;
+  transition: background 0.15s;
+}
+#addMenuForm button[type="submit"]:hover {
+  background: linear-gradient(90deg, #190088 10%, #4d2eee 100%);
+}
+
+#addMenuForm textarea {
+  min-height: 38px;
+  max-height: 80px;
+  resize: vertical;
+  font-size: 0.99em;
+}
+
+/* ========== END Add Menu Form ========== */
 
 /* Menu card list */
 .menu-card-list {
@@ -181,19 +228,40 @@ button:hover { background: #4d2eee; }
 }
 .refresh-btn:hover { background: #190088; color: #fff; }
 
-/* Mobile: กล่องรายละเอียดแคบ, มีขอบว่างรอบ container, zoom out */
+/* --------- Mobile: ZOOM OUT กล่องทั้งหน้า --------- */
 @media (max-width: 700px) {
+  html, body {
+    /* ทำให้เหมือน zoom out หน้าเว็บทั้งหมด */
+    transform: scale(0.78);
+    transform-origin: top center;
+    height: 100%;
+    width: 100vw;
+    overflow-x: visible !important;
+    /* กันกรณี mobile browser บางรุ่นจะ overflow */
+  }
   body {
     background: #f4f5fa;
+    min-height: 120vh;
+    /* เพิ่มพื้นที่รอบๆ เพื่อให้ดูเป็นกล่องลอย */
+    padding: 60px 0 60px 0;
+    box-sizing: border-box;
   }
   .container {
-    max-width: 540px;
-    width: 93vw;
-    margin: 30px auto !important;
-    padding: 24px 6vw 18px 6vw !important;
+    max-width: 440px;
+    min-width: 220px;
+    width: 82vw;
+    margin: 0 auto !important;
     border-radius: 22px;
-    font-size: 0.95em;
-    box-shadow: 0 6px 36px 0 rgba(25,0,136,0.09);
+    font-size: 0.93em;
+    box-shadow: 0 6px 36px 0 rgba(25,0,136,0.13);
+    /* ขอบว่างรอบ container */
+  }
+  #addMenuForm {
+    max-width: 94vw;
+    padding: 12px 5vw 11px 5vw !important;
+    border-radius: 16px;
+    box-shadow: 0 2px 11px 0 rgba(25,0,136,0.09);
+    gap: 6px;
   }
   .menu-card-list {
     gap: 18px;
