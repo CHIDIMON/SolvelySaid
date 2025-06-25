@@ -7,6 +7,41 @@
   <link rel="icon" type="image/png" href="solvely.png" />
   <link rel="stylesheet" href="main.css" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    .flags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-bottom: 18px;
+      padding: 6px 0 0 0;
+      max-width: 720px;
+      overflow-x: auto;
+    }
+    .flag {
+      display: flex;
+      align-items: center;
+      border: 1.2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 2px 11px 2px 2px;
+      background: #fafcff;
+      cursor: pointer;
+      transition: background 0.18s, border 0.2s;
+      font-size: 1em;
+      line-height: 1.1;
+    }
+    .flag.selected, .flag:hover {
+      background: #e0edff;
+      border-color: #4b98f7;
+    }
+    .flag img {
+      width: 22px; height: 16px; margin-right: 7px; border-radius: 2.5px;
+      border: 1px solid #eee;
+      box-shadow: 0 0.5px 1px #d2d6df60;
+    }
+    .flag span {
+      min-width: 56px;
+    }
+  </style>
   <script>
     const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
     const isLocal = [
@@ -20,10 +55,54 @@
       window.location.href = "/";
     }
   </script>
-
 </head>
 <body>
   <div class="container">
+    <!-- FLAGS BAR -->
+    <div class="flags" id="flagsBar">
+      <div class="flag" data-lang="en"><img src="https://flagcdn.com/w40/gb.png" alt="English"/><span>English</span></div>
+      <div class="flag" data-lang="zh"><img src="https://flagcdn.com/w40/cn.png" alt="Chinese"/><span>Chinese</span></div>
+      <div class="flag" data-lang="es"><img src="https://flagcdn.com/w40/es.png" alt="Spanish"/><span>Spanish</span></div>
+      <div class="flag" data-lang="hi"><img src="https://flagcdn.com/w40/in.png" alt="Hindi"/><span>Hindi</span></div>
+      <div class="flag" data-lang="ar"><img src="https://flagcdn.com/w40/sa.png" alt="Arabic"/><span>Arabic</span></div>
+      <div class="flag" data-lang="fr"><img src="https://flagcdn.com/w40/fr.png" alt="French"/><span>French</span></div>
+      <div class="flag" data-lang="ru"><img src="https://flagcdn.com/w40/ru.png" alt="Russian"/><span>Russian</span></div>
+      <div class="flag" data-lang="pt"><img src="https://flagcdn.com/w40/pt.png" alt="Portuguese"/><span>Portuguese</span></div>
+      <div class="flag" data-lang="bn"><img src="https://flagcdn.com/w40/bd.png" alt="Bengali"/><span>Bengali</span></div>
+      <div class="flag" data-lang="de"><img src="https://flagcdn.com/w40/de.png" alt="German"/><span>German</span></div>
+      <div class="flag" data-lang="ja"><img src="https://flagcdn.com/w40/jp.png" alt="Japanese"/><span>Japanese</span></div>
+      <div class="flag" data-lang="pa"><img src="https://flagcdn.com/w40/in.png" alt="Punjabi"/><span>Panjabi</span></div>
+      <div class="flag" data-lang="ur"><img src="https://flagcdn.com/w40/pk.png" alt="Urdu"/><span>Urdu</span></div>
+      <div class="flag" data-lang="ko"><img src="https://flagcdn.com/w40/kr.png" alt="Korean"/><span>Korean</span></div>
+      <div class="flag" data-lang="vi"><img src="https://flagcdn.com/w40/vn.png" alt="Vietnamese"/><span>Vietnamese</span></div>
+      <div class="flag" data-lang="it"><img src="https://flagcdn.com/w40/it.png" alt="Italian"/><span>Italian</span></div>
+      <div class="flag" data-lang="jv"><img src="https://flagcdn.com/w40/id.png" alt="Javanese"/><span>Javanese</span></div>
+      <div class="flag" data-lang="tl"><img src="https://flagcdn.com/w40/ph.png" alt="Filipino"/><span>Filipino</span></div>
+      <div class="flag" data-lang="tr"><img src="https://flagcdn.com/w40/tr.png" alt="Turkish"/><span>Turkish</span></div>
+      <div class="flag" data-lang="th"><img src="https://flagcdn.com/w40/th.png" alt="Thai"/><span>Thai</span></div>
+      <div class="flag" data-lang="ta"><img src="https://flagcdn.com/w40/in.png" alt="Tamil"/><span>Tamil</span></div>
+      <div class="flag" data-lang="te"><img src="https://flagcdn.com/w40/in.png" alt="Telugu"/><span>Telugu</span></div>
+      <div class="flag" data-lang="mr"><img src="https://flagcdn.com/w40/in.png" alt="Marathi"/><span>Marathi</span></div>
+      <div class="flag" data-lang="gu"><img src="https://flagcdn.com/w40/in.png" alt="Gujarati"/><span>Gujarati</span></div>
+      <div class="flag" data-lang="fa"><img src="https://flagcdn.com/w40/ir.png" alt="Persian"/><span>Persian</span></div>
+      <div class="flag" data-lang="pl"><img src="https://flagcdn.com/w40/pl.png" alt="Polish"/><span>Polish</span></div>
+      <div class="flag" data-lang="uk"><img src="https://flagcdn.com/w40/ua.png" alt="Ukrainian"/><span>Ukrainian</span></div>
+      <div class="flag" data-lang="ro"><img src="https://flagcdn.com/w40/ro.png" alt="Romanian"/><span>Romanian</span></div>
+      <div class="flag" data-lang="nl"><img src="https://flagcdn.com/w40/nl.png" alt="Dutch"/><span>Dutch</span></div>
+      <div class="flag" data-lang="el"><img src="https://flagcdn.com/w40/gr.png" alt="Greek"/><span>Greek</span></div>
+      <div class="flag" data-lang="hu"><img src="https://flagcdn.com/w40/hu.png" alt="Hungarian"/><span>Hungarian</span></div>
+      <div class="flag" data-lang="sv"><img src="https://flagcdn.com/w40/se.png" alt="Swedish"/><span>Swedish</span></div>
+      <div class="flag" data-lang="cs"><img src="https://flagcdn.com/w40/cz.png" alt="Czech"/><span>Czech</span></div>
+      <div class="flag" data-lang="he"><img src="https://flagcdn.com/w40/il.png" alt="Hebrew"/><span>Hebrew</span></div>
+      <div class="flag" data-lang="id"><img src="https://flagcdn.com/w40/id.png" alt="Indonesian"/><span>Indonesian</span></div>
+      <div class="flag" data-lang="ms"><img src="https://flagcdn.com/w40/my.png" alt="Malay"/><span>Malay</span></div>
+      <div class="flag" data-lang="uz"><img src="https://flagcdn.com/w40/uz.png" alt="Uzbek"/><span>Uzbek</span></div>
+      <div class="flag" data-lang="kk"><img src="https://flagcdn.com/w40/kz.png" alt="Kazakh"/><span>Kazakh</span></div>
+      <div class="flag" data-lang="az"><img src="https://flagcdn.com/w40/az.png" alt="Azerbaijani"/><span>Azerbaijani</span></div>
+      <div class="flag" data-lang="ne"><img src="https://flagcdn.com/w40/np.png" alt="Nepali"/><span>Nepali</span></div>
+      <div class="flag" data-lang="km"><img src="https://flagcdn.com/w40/kh.png" alt="Khmer"/><span>Khmer</span></div>
+    </div>
+    <!-- /FLAGS BAR -->
     <div class="selected-language" id="selectedLanguageDisplay"></div>
     <h1>Ordering Food (Tap to Record)</h1>
     <div class="record-section">
@@ -53,6 +132,70 @@
   </div>
 
 <script>
+const langFlagMap = {
+  en: {name: "English", flag: "https://flagcdn.com/w40/gb.png"},
+  zh: {name: "Chinese", flag: "https://flagcdn.com/w40/cn.png"},
+  es: {name: "Spanish", flag: "https://flagcdn.com/w40/es.png"},
+  hi: {name: "Hindi", flag: "https://flagcdn.com/w40/in.png"},
+  ar: {name: "Arabic", flag: "https://flagcdn.com/w40/sa.png"},
+  fr: {name: "French", flag: "https://flagcdn.com/w40/fr.png"},
+  ru: {name: "Russian", flag: "https://flagcdn.com/w40/ru.png"},
+  pt: {name: "Portuguese", flag: "https://flagcdn.com/w40/pt.png"},
+  bn: {name: "Bengali", flag: "https://flagcdn.com/w40/bd.png"},
+  de: {name: "German", flag: "https://flagcdn.com/w40/de.png"},
+  ja: {name: "Japanese", flag: "https://flagcdn.com/w40/jp.png"},
+  pa: {name: "Punjabi", flag: "https://flagcdn.com/w40/in.png"},
+  ur: {name: "Urdu", flag: "https://flagcdn.com/w40/pk.png"},
+  ko: {name: "Korean", flag: "https://flagcdn.com/w40/kr.png"},
+  vi: {name: "Vietnamese", flag: "https://flagcdn.com/w40/vn.png"},
+  it: {name: "Italian", flag: "https://flagcdn.com/w40/it.png"},
+  jv: {name: "Javanese", flag: "https://flagcdn.com/w40/id.png"},
+  tl: {name: "Filipino", flag: "https://flagcdn.com/w40/ph.png"},
+  tr: {name: "Turkish", flag: "https://flagcdn.com/w40/tr.png"},
+  th: {name: "Thai", flag: "https://flagcdn.com/w40/th.png"},
+  ta: {name: "Tamil", flag: "https://flagcdn.com/w40/in.png"},
+  te: {name: "Telugu", flag: "https://flagcdn.com/w40/in.png"},
+  mr: {name: "Marathi", flag: "https://flagcdn.com/w40/in.png"},
+  gu: {name: "Gujarati", flag: "https://flagcdn.com/w40/in.png"},
+  fa: {name: "Persian", flag: "https://flagcdn.com/w40/ir.png"},
+  pl: {name: "Polish", flag: "https://flagcdn.com/w40/pl.png"},
+  uk: {name: "Ukrainian", flag: "https://flagcdn.com/w40/ua.png"},
+  ro: {name: "Romanian", flag: "https://flagcdn.com/w40/ro.png"},
+  nl: {name: "Dutch", flag: "https://flagcdn.com/w40/nl.png"},
+  el: {name: "Greek", flag: "https://flagcdn.com/w40/gr.png"},
+  hu: {name: "Hungarian", flag: "https://flagcdn.com/w40/hu.png"},
+  sv: {name: "Swedish", flag: "https://flagcdn.com/w40/se.png"},
+  cs: {name: "Czech", flag: "https://flagcdn.com/w40/cz.png"},
+  he: {name: "Hebrew", flag: "https://flagcdn.com/w40/il.png"},
+  id: {name: "Indonesian", flag: "https://flagcdn.com/w40/id.png"},
+  ms: {name: "Malay", flag: "https://flagcdn.com/w40/my.png"},
+  uz: {name: "Uzbek", flag: "https://flagcdn.com/w40/uz.png"},
+  kk: {name: "Kazakh", flag: "https://flagcdn.com/w40/kz.png"},
+  az: {name: "Azerbaijani", flag: "https://flagcdn.com/w40/az.png"},
+  ne: {name: "Nepali", flag: "https://flagcdn.com/w40/np.png"},
+  km: {name: "Khmer", flag: "https://flagcdn.com/w40/kh.png"}
+};
+function updateSelectedFlag(lang) {
+  document.querySelectorAll('.flag').forEach(flag => {
+    flag.classList.toggle('selected', flag.getAttribute('data-lang') === lang);
+  });
+  const s = langFlagMap[lang] || {name: lang, flag: ''};
+  document.getElementById('selectedLanguageDisplay').innerHTML = `<img src="${s.flag}" alt="${s.name}" /> ${s.name}`;
+}
+window.addEventListener('DOMContentLoaded', () => {
+  const lang = localStorage.getItem('selectedLanguage') || 'th';
+  updateSelectedFlag(lang);
+});
+document.querySelectorAll('.flag').forEach(flagDiv => {
+  flagDiv.onclick = function() {
+    const lang = this.getAttribute('data-lang');
+    localStorage.setItem('selectedLanguage', lang);
+    updateSelectedFlag(lang);
+    // ถ้าต้อง reload หน้า: location.reload();
+  };
+});
+
+// ระบบ voice + order เดิมต่อจากนี้
 const defaultURL = "https://app.solvelysaid.space";
 const fallbackURL = "https://solvelysaidbn.onrender.com";
 let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
@@ -88,14 +231,8 @@ async function checkServer(url) {
     }
   }
 })();
-</script>
 
-<script>
-const langMap = {th:{name:"Thai",flag:"https://flagcdn.com/w40/th.png"},en:{name:"English",flag:"https://flagcdn.com/w40/gb.png"},zh:{name:"Chinese",flag:"https://flagcdn.com/w40/cn.png"},ja:{name:"Japanese",flag:"https://flagcdn.com/w40/jp.png"}};
-// (ตัดภาษาอื่นออกเพื่อให้สั้นลง ใส่ครบได้ตามเดิม)
 const selectedLangCode = localStorage.getItem('selectedLanguage') || 'th';
-const selectedLang = langMap[selectedLangCode] || langMap['th'];
-document.getElementById('selectedLanguageDisplay').innerHTML = `<img src="${selectedLang.flag}" alt="${selectedLang.name} Flag" /> ${selectedLang.name}`;
 
 const recordBtn = document.getElementById("recordBtn");
 const micIcon = document.getElementById("micIcon");
@@ -170,7 +307,8 @@ function startRecording() {
 
       const formData = new FormData();
       formData.append("file", audioBlob, "recorded_audio.webm");
-      formData.append("language", selectedLangCode);
+      const lang = localStorage.getItem('selectedLanguage') || 'th';
+      formData.append("language", lang);
 
       fetch(new URL("/upload", baseURL), {
         method: "POST",
@@ -257,7 +395,7 @@ function sendOrder() {
     body: JSON.stringify({
       table_number: tableNumber,
       menus: detectedMenu ? [detectedMenu] : [],
-      summary: aiSummary    // <--- ส่งสรุป ai response ไปด้วย
+      summary: aiSummary
     })
   })
   .then(res => res.json())
@@ -271,7 +409,6 @@ function sendOrder() {
     }
   });
 }
-// ==== END ORDER JS ====
 
 function resetChat() {
   fetch(new URL("/chat", baseURL), {
