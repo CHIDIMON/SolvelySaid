@@ -35,6 +35,21 @@
       width: 28px;
       border-radius: 5px;
     }
+    .lang-btn {
+      background: #edf3ff;
+      color: #1a48a3;
+      border: 1px solid #a2bbdf;
+      border-radius: 7px;
+      margin-bottom: 10px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background .18s;
+      margin-right: 8px;
+    }
+    .lang-btn:hover {
+      background: #e0eaff;
+    }
   </style>
   <script>
     const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
@@ -52,9 +67,12 @@
 </head>
 <body>
   <div class="container">
+    <div style="display: flex; justify-content: flex-end;">
+      <button class="lang-btn" onclick="toggleFlags()">🌐 เปลี่ยนภาษา</button>
+    </div>
     <div class="selected-language" id="selectedLanguageDisplay"></div>
-    <!-- เตรียม div สำหรับ flag ภาษา (ซ่อนอยู่) -->
-    <div class="flags-multilang" style="display:none;"></div>
+    <!-- Div สำหรับ flags ทุกภาษา -->
+    <div class="flags-multilang" id="flagsMultilang" style="display:none;"></div>
     <h1>Ordering Food (Tap to Record)</h1>
     <div class="record-section">
       <button id="recordBtn" title="กดเพื่อเริ่ม/หยุดบันทึกเสียง">
@@ -83,162 +101,144 @@
   </div>
 
 <script>
-const defaultURL = "https://app.solvelysaid.space";
-const fallbackURL = "https://solvelysaidbn.onrender.com";
-let baseURL = sessionStorage.getItem("workingBaseURL") || defaultURL;
-
-async function checkServer(url) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3000);
-  try {
-    const res = await fetch(new URL("/ping", url), {
-      method: "GET",
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      sessionStorage.setItem("workingBaseURL", url);
-      baseURL = url;
-      console.log("✅ Server OK at", url);
-      return true;
-    }
-  } catch (err) {
-    console.error("❌ Ping failed:", err.message);
-  }
-  clearTimeout(timeoutId);
-  return false;
-}
-
-(async () => {
-  const ok = await checkServer(baseURL);
-  if (!ok) {
-    const fallbackOk = await checkServer(fallbackURL);
-    if (!fallbackOk) {
-      alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ใดๆ ได้ กรุณาตรวจสอบเครือข่าย");
-    }
-  }
-})();
-</script>
-
-<script>
-// ---------- Language Flags: เตรียมไว้แต่ยังไม่โชว์ ----------
 const allLangFlags = [
-  { lang: "en", flag: "gb", name: "English" },
-  { lang: "zh", flag: "cn", name: "Chinese" },
-  { lang: "es", flag: "es", name: "Spanish" },
-  { lang: "hi", flag: "in", name: "Hindi" },
-  { lang: "ar", flag: "sa", name: "Arabic" },
-  { lang: "fr", flag: "fr", name: "French" },
-  { lang: "ru", flag: "ru", name: "Russian" },
-  { lang: "pt", flag: "pt", name: "Portuguese" },
-  { lang: "bn", flag: "bd", name: "Bengali" },
-  { lang: "de", flag: "de", name: "German" },
-  { lang: "ja", flag: "jp", name: "Japanese" },
-  { lang: "pa", flag: "in", name: "Punjabi" },
-  { lang: "ur", flag: "pk", name: "Urdu" },
-  { lang: "ko", flag: "kr", name: "Korean" },
-  { lang: "vi", flag: "vn", name: "Vietnamese" },
-  { lang: "it", flag: "it", name: "Italian" },
-  { lang: "jv", flag: "id", name: "Javanese" },
-  { lang: "tl", flag: "ph", name: "Filipino" },
-  { lang: "tr", flag: "tr", name: "Turkish" },
-  { lang: "th", flag: "th", name: "Thai" },
-  { lang: "ta", flag: "in", name: "Tamil" },
-  { lang: "te", flag: "in", name: "Telugu" },
-  { lang: "mr", flag: "in", name: "Marathi" },
-  { lang: "gu", flag: "in", name: "Gujarati" },
-  { lang: "fa", flag: "ir", name: "Persian" },
-  { lang: "pl", flag: "pl", name: "Polish" },
-  { lang: "uk", flag: "ua", name: "Ukrainian" },
-  { lang: "ro", flag: "ro", name: "Romanian" },
-  { lang: "nl", flag: "nl", name: "Dutch" },
-  { lang: "el", flag: "gr", name: "Greek" },
-  { lang: "hu", flag: "hu", name: "Hungarian" },
-  { lang: "sv", flag: "se", name: "Swedish" },
-  { lang: "cs", flag: "cz", name: "Czech" },
-  { lang: "he", flag: "il", name: "Hebrew" },
-  { lang: "id", flag: "id", name: "Indonesian" },
-  { lang: "ms", flag: "my", name: "Malay" },
-  { lang: "uz", flag: "uz", name: "Uzbek" },
-  { lang: "kk", flag: "kz", name: "Kazakh" },
-  { lang: "az", flag: "az", name: "Azerbaijani" },
-  { lang: "ne", flag: "np", name: "Nepali" },
-  { lang: "km", flag: "kh", name: "Khmer" },
-  { lang: "am", flag: "et", name: "Amharic" },
-  { lang: "lo", flag: "la", name: "Lao" },
-  { lang: "my", flag: "mm", name: "Myanmar (Burmese)" },
-  { lang: "si", flag: "lk", name: "Sinhala" },
-  { lang: "sw", flag: "ke", name: "Swahili" },
-  { lang: "bs", flag: "ba", name: "Bosnian" },
-  { lang: "hr", flag: "hr", name: "Croatian" },
-  { lang: "sr", flag: "rs", name: "Serbian" },
-  { lang: "bg", flag: "bg", name: "Bulgarian" },
-  { lang: "sk", flag: "sk", name: "Slovak" },
-  { lang: "sl", flag: "si", name: "Slovenian" },
-  { lang: "lt", flag: "lt", name: "Lithuanian" },
-  { lang: "lv", flag: "lv", name: "Latvian" },
-  { lang: "et", flag: "ee", name: "Estonian" },
-  { lang: "af", flag: "za", name: "Afrikaans" },
-  { lang: "da", flag: "dk", name: "Danish" },
-  { lang: "fi", flag: "fi", name: "Finnish" },
-  { lang: "no", flag: "no", name: "Norwegian" },
-  { lang: "nn", flag: "no", name: "Nynorsk" },
-  { lang: "is", flag: "is", name: "Icelandic" },
-  { lang: "hy", flag: "am", name: "Armenian" },
-  { lang: "ka", flag: "ge", name: "Georgian" },
-  { lang: "ht", flag: "ht", name: "Haitian Creole" },
-  { lang: "ha", flag: "ng", name: "Hausa" },
-  { lang: "haw", flag: "us", name: "Hawaiian" },
-  { lang: "ga", flag: "ie", name: "Irish" },
-  { lang: "jw", flag: "id", name: "Javanese" },
-  { lang: "kn", flag: "in", name: "Kannada" },
-  { lang: "la", flag: "va", name: "Latin" },
-  { lang: "ln", flag: "cg", name: "Lingala" },
-  { lang: "lb", flag: "lu", name: "Luxembourgish" },
-  { lang: "mk", flag: "mk", name: "Macedonian" },
-  { lang: "mg", flag: "mg", name: "Malagasy" },
-  { lang: "ml", flag: "in", name: "Malayalam" },
-  { lang: "mt", flag: "mt", name: "Maltese" },
-  { lang: "mi", flag: "nz", name: "Maori" },
-  { lang: "mn", flag: "mn", name: "Mongolian" },
-  { lang: "oc", flag: "fr", name: "Occitan" },
-  { lang: "ps", flag: "af", name: "Pashto" },
-  { lang: "sa", flag: "in", name: "Sanskrit" },
-  { lang: "sn", flag: "zw", name: "Shona" },
-  { lang: "sd", flag: "pk", name: "Sindhi" },
-  { lang: "so", flag: "so", name: "Somali" },
-  { lang: "tg", flag: "tj", name: "Tajik" },
-  { lang: "tt", flag: "ru", name: "Tatar" },
-  { lang: "bo", flag: "cn", name: "Tibetan" },
-  { lang: "tk", flag: "tm", name: "Turkmen" },
-  { lang: "cy", flag: "gb-wls", name: "Welsh" },
-  { lang: "yi", flag: "ua", name: "Yiddish" },
-  { lang: "yo", flag: "ng", name: "Yoruba" },
-  { lang: "fo", flag: "fo", name: "Faroese" },
-  { lang: "br", flag: "fr", name: "Breton" }
+  { code: "en", flag: "gb", name: "English" },
+  { code: "zh", flag: "cn", name: "Chinese" },
+  { code: "es", flag: "es", name: "Spanish" },
+  { code: "hi", flag: "in", name: "Hindi" },
+  { code: "ar", flag: "sa", name: "Arabic" },
+  { code: "fr", flag: "fr", name: "French" },
+  { code: "ru", flag: "ru", name: "Russian" },
+  { code: "pt", flag: "pt", name: "Portuguese" },
+  { code: "bn", flag: "bd", name: "Bengali" },
+  { code: "de", flag: "de", name: "German" },
+  { code: "ja", flag: "jp", name: "Japanese" },
+  { code: "pa", flag: "in", name: "Punjabi" },
+  { code: "ur", flag: "pk", name: "Urdu" },
+  { code: "ko", flag: "kr", name: "Korean" },
+  { code: "vi", flag: "vn", name: "Vietnamese" },
+  { code: "it", flag: "it", name: "Italian" },
+  { code: "jv", flag: "id", name: "Javanese" },
+  { code: "tl", flag: "ph", name: "Filipino" },
+  { code: "tr", flag: "tr", name: "Turkish" },
+  { code: "th", flag: "th", name: "Thai" },
+  { code: "ta", flag: "in", name: "Tamil" },
+  { code: "te", flag: "in", name: "Telugu" },
+  { code: "mr", flag: "in", name: "Marathi" },
+  { code: "gu", flag: "in", name: "Gujarati" },
+  { code: "fa", flag: "ir", name: "Persian" },
+  { code: "pl", flag: "pl", name: "Polish" },
+  { code: "uk", flag: "ua", name: "Ukrainian" },
+  { code: "ro", flag: "ro", name: "Romanian" },
+  { code: "nl", flag: "nl", name: "Dutch" },
+  { code: "el", flag: "gr", name: "Greek" },
+  { code: "hu", flag: "hu", name: "Hungarian" },
+  { code: "sv", flag: "se", name: "Swedish" },
+  { code: "cs", flag: "cz", name: "Czech" },
+  { code: "he", flag: "il", name: "Hebrew" },
+  { code: "id", flag: "id", name: "Indonesian" },
+  { code: "ms", flag: "my", name: "Malay" },
+  { code: "uz", flag: "uz", name: "Uzbek" },
+  { code: "kk", flag: "kz", name: "Kazakh" },
+  { code: "az", flag: "az", name: "Azerbaijani" },
+  { code: "ne", flag: "np", name: "Nepali" },
+  { code: "km", flag: "kh", name: "Khmer" },
+  { code: "am", flag: "et", name: "Amharic" },
+  { code: "lo", flag: "la", name: "Lao" },
+  { code: "my", flag: "mm", name: "Myanmar (Burmese)" },
+  { code: "si", flag: "lk", name: "Sinhala" },
+  { code: "sw", flag: "ke", name: "Swahili" },
+  { code: "bs", flag: "ba", name: "Bosnian" },
+  { code: "hr", flag: "hr", name: "Croatian" },
+  { code: "sr", flag: "rs", name: "Serbian" },
+  { code: "bg", flag: "bg", name: "Bulgarian" },
+  { code: "sk", flag: "sk", name: "Slovak" },
+  { code: "sl", flag: "si", name: "Slovenian" },
+  { code: "lt", flag: "lt", name: "Lithuanian" },
+  { code: "lv", flag: "lv", name: "Latvian" },
+  { code: "et", flag: "ee", name: "Estonian" },
+  { code: "af", flag: "za", name: "Afrikaans" },
+  { code: "da", flag: "dk", name: "Danish" },
+  { code: "fi", flag: "fi", name: "Finnish" },
+  { code: "no", flag: "no", name: "Norwegian" },
+  { code: "nn", flag: "no", name: "Nynorsk" },
+  { code: "is", flag: "is", name: "Icelandic" },
+  { code: "hy", flag: "am", name: "Armenian" },
+  { code: "ka", flag: "ge", name: "Georgian" },
+  { code: "ht", flag: "ht", name: "Haitian Creole" },
+  { code: "ha", flag: "ng", name: "Hausa" },
+  { code: "haw", flag: "us", name: "Hawaiian" },
+  { code: "ga", flag: "ie", name: "Irish" },
+  { code: "jw", flag: "id", name: "Javanese" },
+  { code: "kn", flag: "in", name: "Kannada" },
+  { code: "la", flag: "va", name: "Latin" },
+  { code: "ln", flag: "cg", name: "Lingala" },
+  { code: "lb", flag: "lu", name: "Luxembourgish" },
+  { code: "mk", flag: "mk", name: "Macedonian" },
+  { code: "mg", flag: "mg", name: "Malagasy" },
+  { code: "ml", flag: "in", name: "Malayalam" },
+  { code: "mt", flag: "mt", name: "Maltese" },
+  { code: "mi", flag: "nz", name: "Maori" },
+  { code: "mn", flag: "mn", name: "Mongolian" },
+  { code: "oc", flag: "fr", name: "Occitan" },
+  { code: "ps", flag: "af", name: "Pashto" },
+  { code: "sa", flag: "in", name: "Sanskrit" },
+  { code: "sn", flag: "zw", name: "Shona" },
+  { code: "sd", flag: "pk", name: "Sindhi" },
+  { code: "so", flag: "so", name: "Somali" },
+  { code: "tg", flag: "tj", name: "Tajik" },
+  { code: "tt", flag: "ru", name: "Tatar" },
+  { code: "bo", flag: "cn", name: "Tibetan" },
+  { code: "tk", flag: "tm", name: "Turkmen" },
+  { code: "cy", flag: "gb-wls", name: "Welsh" },
+  { code: "yi", flag: "ua", name: "Yiddish" },
+  { code: "yo", flag: "ng", name: "Yoruba" },
+  { code: "fo", flag: "fo", name: "Faroese" },
+  { code: "br", flag: "fr", name: "Breton" }
 ];
 
-
-window.addEventListener('DOMContentLoaded', () => {
-  // โชว์แค่ธงภาษาปัจจุบัน
+// Render เฉพาะธงที่เลือกไว้
+function showSelectedLang() {
   const selectedLangCode = localStorage.getItem('selectedLanguage') || 'th';
   const selectedLang = allLangFlags.find(l => l.code === selectedLangCode) || allLangFlags.find(l => l.code === 'th');
   document.getElementById('selectedLanguageDisplay').innerHTML =
-    `<img src="${selectedLang.flag}" alt="${selectedLang.name} Flag" style="width:28px;vertical-align:middle;border-radius:5px;" /> <b>${selectedLang.name}</b>`;
+    `<img src="https://flagcdn.com/w40/${selectedLang.flag}.png" alt="${selectedLang.name} Flag" style="width:28px;vertical-align:middle;border-radius:5px;" /> <b>${selectedLang.name}</b>`;
+}
+showSelectedLang();
 
-  // ---- (ถ้าอยาก render flags-multilang ทีหลัง ให้ใช้ function นี้) ----
-  // function renderFlags() {
-  //   const flagsDiv = document.querySelector('.flags-multilang');
-  //   flagsDiv.innerHTML = allLangFlags.map(l =>
-  //     `<div class="flag-item" data-lang="${l.code}">
-  //        <img src="${l.flag}" alt="${l.name}" />
-  //        <span>${l.name}</span>
-  //      </div>`
-  //   ).join('');
-  //   flagsDiv.style.display = "flex";
-  // }
-});
+// render flags-multilang ทั้งหมด (popup/switch language)
+function renderFlagsMultilang() {
+  const flagsDiv = document.getElementById('flagsMultilang');
+  flagsDiv.innerHTML = allLangFlags.map(l =>
+    `<div class="flag-item${localStorage.getItem('selectedLanguage') === l.code ? ' selected' : ''}" data-lang="${l.code}">
+      <img src="https://flagcdn.com/w40/${l.flag}.png" alt="${l.name}" />
+      <span>${l.name}</span>
+    </div>`
+  ).join('');
+  flagsDiv.querySelectorAll('.flag-item').forEach(item => {
+    item.onclick = () => {
+      localStorage.setItem('selectedLanguage', item.dataset.lang);
+      showSelectedLang();
+      flagsDiv.style.display = "none";
+      window.location.reload(); // เปลี่ยน reload ได้ตามต้องการ
+    };
+  });
+}
+
+// แสดง/ซ่อน flags
+function toggleFlags() {
+  const flagsDiv = document.getElementById('flagsMultilang');
+  if (flagsDiv.style.display === "none" || flagsDiv.style.display === "") {
+    renderFlagsMultilang();
+    flagsDiv.style.display = "flex";
+    flagsDiv.scrollIntoView({behavior: "smooth"});
+  } else {
+    flagsDiv.style.display = "none";
+  }
+}
 </script>
+<!-- ...ส่วนที่เหลือ (record, order, resetChat ฯลฯ) ใช้ตามที่คุณมีต่อได้เลย... -->
+
 
 <script>
 const recordBtn = document.getElementById("recordBtn");
