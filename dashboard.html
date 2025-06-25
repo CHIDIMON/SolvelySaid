@@ -6,19 +6,18 @@
   <title>Dashboard - รายการอาหาร</title>
   <link rel="stylesheet" href="dashboard.css">
 
-  <script>
-    const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
-    const isLocal = [
-      'localhost',
-      '127.0.0.1',
-      '::1'
-    ].includes(window.location.hostname) ||
+<script>
+  const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
+  const isLocal = [
+    'localhost', '127.0.0.1', '::1'
+  ].includes(window.location.hostname) ||
     window.location.protocol === 'file:';
 
-    if (!isAuthenticated && !isLocal) {
-      window.location.href = "/";
-    }
-  </script>
+  if (!isAuthenticated && !isLocal) {
+    // เพิ่ม next param ไป login.html
+    window.location.href = "/login.html?next=" + encodeURIComponent(window.location.pathname);
+  }
+</script>
 
 
   <style>
